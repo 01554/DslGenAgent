@@ -1,0 +1,92 @@
+metadata:
+  title: Difyワークフロー生成プロンプト
+  version: 2.0.0
+  description: Difyのワークフローファイルを生成するためのプロンプト定義
+
+input_requirements: |
+  以下の情報を提供してください：
+  1. ワークフローの目的（例：本の要約生成、商品説明文作成など）
+  2. 入力として必要な情報（例：本のタイトル、商品名と特徴など）
+  3. 出力として期待する形式や内容
+  4. 特別な制約条件（文字数制限、トーンの指定など）
+
+instructions:
+  workflow_overview: |
+    提供された要件に基づいて、以下の要素を含むDifyワークフローファイル（YAML形式）を生成します：
+    - ノード（開始、LLM、終了）で構成されるワークフロー
+    - ノード間は順次実行されるよう接続（但し、指定された場合は並列実行も可能)
+    - 入力から出力までの一連の処理を自動化
+
+  required_structure:
+    app_info:
+      - mode: workflowを指定
+      - name: 目的を表す名前を設定
+      - version: 0.1.5を使用
+
+
+  output_format: |
+    生成されるYAMLファイルは以下の形式に従ってください：
+    ```yaml
+    app:
+      mode: workflow
+      name: [ワークフロー名]
+      version: 0.1.5
+      description: ''
+    kind: app
+    version: 0.1.5
+    workflow:
+      graph:
+        edges:
+        # エッジ例
+        - data:
+            sourceType: [node type]
+            targetType: [ターゲットノードタイプ]
+          id: [source node id]-source-[target node ID]-target
+          source: [start node id]
+          sourceHandle: source
+          target: [target node ID]
+          targetHandle: target
+        ## if-else エッジの例
+        - data:
+            sourceType: if-else
+            targetType: [ターゲットノードタイプ]
+          id: [source node id]-[caseid]-[target node ID]-target
+          source: [source node id]
+          sourceHandle: [case id]
+          target: [target node ID]
+          targetHandle: target
+        - data:
+            sourceType: if-else
+            targetType: llm
+          id: [source node id]-[caseid]-[target node ID]-target
+          source: [source node id]
+          sourceHandle: [case id]
+          target: [target node ID]
+          targetHandle: target
+        # 以下 エッジのつながりを記述
+        - data:
+            sourceType: [node type]
+            targetType: [ターゲットノードタイプ]
+            ...
+
+
+        nodes:
+        # nodes例
+          - id: [node ID]
+            data:
+              type: [node type]
+              title: [node name]
+              # ノードごとの書式に従って 記述
+
+          - id: [node ID]
+            data:
+              type: [node type]
+              title: [node name]
+              # ノードごとの書式に従って 記述
+          ...
+    ```
+  output_notice: | 
+    - ノードIDはユニークなID。
+    - ノードIDは1700000000000から始まる。
+    - ノードIDは1700000000000から1799999999999までの範囲
+

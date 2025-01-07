@@ -1,0 +1,32 @@
+app:
+  description: ''
+  mode: workflow
+  name: "input workflow name"
+  use_icon_as_answer_icon: false
+kind: app
+version: 0.1.5
+workflow:
+  conversation_variables: []
+  environment_variables: []
+  features:
+    file_upload: {}
+    retriever_resource:
+      enabled: true
+    sensitive_word_avoidance:
+      enabled: false
+    text_to_speech:
+      enabled: false
+      language: ''
+      voice: ''
+  graph:
+    edges: []
+    nodes:
+    - data:
+        desc: ''
+        title: 開始
+        type: start
+        variables: []
+      id: '1736154126274'
+      sourcePosition: right
+      targetPosition: left
+      type: custom

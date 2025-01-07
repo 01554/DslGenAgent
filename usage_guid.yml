@@ -1,0 +1,798 @@
+    usage_guide: |
+      共通事項：
+      - ノードIDはユニークなIDである必要があります。
+      - ノードIDは1700000000000から始まる必要があります。
+      - ノードIDは1700000000000から1799999999999までの範囲である必要があります。
+
+      ワークフローの使用方法：
+      1. 開始ノード
+         ユースケース:
+         - ワークフローの開始点として機能
+         - ユーザーからの入力を受け付け
+         - 入力された情報を変数として保存
+
+         構造:
+         - id: ユニークなID（必須）
+         - type: start（固定）
+         - variables: 入力変数の配列（必須）
+           - type: 変数の型（必須）
+           - variable: 変数名（必須）
+           - label: 表示ラベル（必須）
+           - required: 必須入力かどうか（必須）
+           - その他設定（型に応じて必要）
+
+         変数型と固有設定:
+         - file（ファイル入力）:
+           - allowed_file_types: 許可するファイルタイプ
+             - document: ドキュメントファイル
+             - image: 画像ファイル
+             - audio: 音声ファイル
+             - video: 動画ファイル
+           - allowed_file_upload_methods: アップロード方法
+             - local_file: ローカルファイル
+             - remote_url: リモートURL
+           - max_length: 最大ファイル名長
+           - required: 必須項目かどうか
+         - number（数値入力）:
+           - min: 最小値（オプション）
+           - max: 最大値（オプション）
+         - paragraph（段落テキスト）:
+           - max_length: 最大文字数（オプション）
+           - options: 選択肢（オプション）
+         - text-input（短文テキスト）:
+           - max_length: 最大文字数（オプション）
+           - options: 選択肢（オプション）
+
+      2. LLMノード
+         ユースケース:
+         - テキスト生成や応答の作成
+         - 入力テキストの加工や変換
+         - 質問への回答生成
+         構造:
+         - id: ユニークなID（必須）
+         - type: llm（固定）
+         - model:（必須）
+           - provider: openai（固定）
+           - name: gpt-4o（固定）
+           - mode: chat（固定）
+           - completion_params:
+             - temperature: 0.0-1.0の値（必須）
+         - prompt_template:（必須）
+           - role: system（固定）
+           - text: プロンプトテキスト（必須）
+         - context:（必須）
+           - enabled: true（固定）
+           - variable_selector: 使用する変数の指定（必須）
+         - vision:
+           - enabled: false（固定）
+         特記事項:
+         - プロンプトはシングルクォートで括る必要あり
+         - システムロールのプロンプトのみ使用可能
+         - 変数参照形式: {{#ノードID.変数名#}}
+         - contextのvariable_selectorで指定した変数は、prompt_templateのtextでも使用して下さい。
+         
+      3. 終了ノード
+         ユースケース:
+         - ワークフローの終了点として機能
+         - 処理結果の出力を定義
+         - 後続システムへのデータ受け渡し
+
+         構造:
+         - id: ユニークなID（必須）
+         - type: end（固定）
+         - outputs:（必須）
+           - value_selector:（必須）
+             - [ノードID]
+             - [変数名]
+           - variable: 出力変数名（必須）
+
+         特記事項:
+         - 少なくとも1つの出力変数が必要
+         - 複数の出力変数を定義可能
+
+      4. HTTPリクエストノード
+         ユースケース:
+         - 外部APIとの連携
+         - データの送受信
+         - Webhook通知の送信
+         - 外部サービスとの統合
+
+         構造:
+         - id: ユニークなID（必須）
+         - type: http-request（固定）
+         - data:（必須）
+           - authorization:（必須）
+             - config: 認証設定（オプション）
+             - type: 認証タイプ（必須）
+               - no-auth: 認証なし
+               - basic: Basic認証
+               - bearer: Bearer認証
+           - body:（必須）
+             - type: リクエストボディタイプ（必須）
+               - json: JSON形式
+               - form-data: マルチパートフォーム
+               - x-www-form-urlencoded: URLエンコード形式
+             - data: リクエストデータ（必須）
+           - headers: ヘッダー情報（必須）
+           - method: HTTPメソッド（必須）
+           - url: エンドポイントURL（必須）
+           - timeout:（オプション）
+             - max_connect_timeout: 接続タイムアウト秒数
+             - max_read_timeout: 読み取りタイムアウト秒数
+             - max_write_timeout: 書き込みタイムアウト秒数
+           - title: ノードのタイトル（必須）
+           - variables: 変数定義（オプション）
+
+         特記事項:
+         HTTPメソッド:
+         - GET: リソースの取得
+           - クエリパラメータによる検索
+           - キャッシュ可能
+         - POST: データの送信・作成
+           - リソースの規成
+           - 大容量データの送信
+         - PUT: リソースの更新・作成
+           - 完全な置き換え
+           - べき等性あり
+         - PATCH: リソースの部分更新
+           - 一部フィールドの更新
+           - べき等性なし
+         - DELETE: リソースの削除
+           - 指定リソースの削除
+         - HEAD: ヘッダー情報の取得
+           - レスポンスボディなし
+
+         変数参照:
+         - 形式: {{#[ノードID].[変数名]#}}
+         - 他のノードの出力を参照可能
+         - JSONパスによるネストされた値の参照可能
+
+         タイムアウト設定:
+         - 0は無制限を意味する
+         - ミリ秒単位で指定可能
+         - 各フェーズで個別に設定可能
+
+      5. JSON Parseノード
+         ユースケース:
+         - JSONデータの解析
+         - 特定のキーの抽出
+         - APIレスポンスの処理
+         - 構造化データの加工
+
+         構造:
+         - id: ユニークなID（必須）
+         - type: tool（固定）
+         - data:（必須）
+           - provider_id: json_process（固定）
+           - provider_name: json_process（固定）
+           - provider_type: builtin（固定）
+           - title: ノードのタイトル（必須）
+           - tool_configurations:（必須）
+             - ensure_ascii: 1または0（必須）
+           - tool_name: parse（固定）
+           - tool_parameters:（必須）
+             - content:（必須）
+               - type: mixed（固定）
+               - value: パース対象のJSON（必須）
+             - json_filter:（必須）
+               - type: mixed（固定）
+               - value: 抽出キー（必須）
+
+         特記事項:
+         データ形式:
+         - content: JSON文字列またはオブジェクト
+           - 他のノードの出力を参照可能
+           - 変数参照形式: {{#[ノードID].[変数名]#}}
+         
+         文字エンコード:
+         - ensure_ascii: 
+           - 1: ASCII文字のみ使用
+           - 0: Unicode文字を許可
+         
+         フィルタリング:
+         - 単一キー: "key"
+         - ネトしたキー: "key1.key2"
+         - 配列インデックス: "array[0]"
+         - 複数キー: ["key1", "key2"]
+         - 条件付き: "key[?(@.field=='value')]"
+
+      6. 質問分類器ノード
+         ユースケース:
+         - 質問内容の自動分類
+         - インテントの判別
+         - 応答フローの最適化
+         - マルチパス処理の制御
+
+         構造:
+         - id: ユニークなID（必須）
+         - type: question-classifier（固定）
+         - data:（必須）
+           - title: ノードのタイトル（必須）
+           - model:（必須）
+             - provider: openai（固定）
+             - name: gpt-4o（固定）
+             - mode: chat（固定）
+             - completion_params:（必須）
+               - temperature: 0.0-1.0の値
+           - query_variable_selector:（必須）
+             - [入力ノードID]
+             - [変数名]
+           - classes:（必須）
+             - id: クラスID（必須）
+             - name: 分類名（必須）
+
+         特記事項:
+         分岐パターン:
+         1. 共通LLM使用パターン:
+            - クラス1の質問 → 知識取得1 → 共通LLM → 終了
+            - クラス2の質問 → 知識取得2 → 共通LLM → 終了
+            - その他の質問 → 直接終了ノードへ
+         
+         2. 個別LLM使用パターン:
+            - クラス1の質問 → 知識取得1 → LLM1 → 終了1
+            - クラス2の質問 → 知識取得2 → LLM2 → 終了2
+            - その他の質問 → 直接終了ノードへ
+
+         エッジ接続設定:
+         - sourceHandle: 質問分類のID（'1', '2'など）
+         - targetHandle: 'target'を指定
+         - sourceType: question-classifier
+         - targetType: 接続先のノードタイプ
+
+         分類結果の利用:
+         - 各クラスに応じた適切な知識ベースの選択
+         - クラスごとに異なるプロンプトの使用
+         - 分類結果に基づく条件分岐の実装
+
+      7. 知識取得ノード
+         ユースケース:
+         - データセットからの関連情報検索
+         - 質問に関連する知識の取得
+         - コンテキストベースの応答生成
+         - 複数ソースからの情報統合
+
+         構造:
+         - id: ユニークなID（必須）
+         - type: knowledge-retrieval（固定）
+         - data:（必須）
+           - title: ノードのタイトル（必須）
+           - dataset_ids: データセットIDの配列（必須）
+           - retrieval_mode: multiple（固定）
+           - multiple_retrieval_config:（必須）
+             - reranking_enable: true/false（必須）
+             - reranking_mode: weighted_score（必須）
+             - top_k: 取得件数（必須）
+             - weights:（必須）
+               - vector_setting:（必須）
+                 - embedding_model_name: モデル名（必須）
+                 - embedding_provider_name: プロバイダー名（須）
+                 - vector_weight: ベクトル重み（必須）
+               - keyword_setting:（必須）
+                 - keyword_weight: キーワード重み（必須）
+           - query_variable_selector:（必須）
+             - [入力ノードID]
+             - [変数名]
+
+         特記事項:
+         検索設定:
+         - embedding_model_name:
+           - text-embedding-3-large: 高精度モデル
+           - text-embedding-ada-002: 標準モデル
+         
+         重み付け:
+         - vector_weight: 0.0-1.0
+           - 1.0: ベクトル検索のみ
+           - 0.0: キーワード検索のみ
+         - keyword_weight: 0.0-1.0
+           - 高値: キーワードマッチを重視
+           - 低値: セマンティック検索を重視
+         
+         検索結果:
+         - top_k: 取得する結果数
+           - 推奨値: 3-5
+           - 最大値: 10
+         - reranking: 検索結果の再ランキング
+           - weighted_score: スコアによる重み付け
+           - 精度と応答時間のバランスを調整可能
+           
+      8. コードノード
+          ユースケース:
+          - カスタムロジックの実装
+          - データの加工・変換
+          - 外部システムとの連携
+          - 条件分岐の制御
+
+          構造:
+          - id: ユニークなID（必須）
+          - type: code（固定）
+          - data:（必須）
+            - code_language: python3（固定）
+            - code: Pythonコード（必須、ダブルクォートで括る）
+            - title: ノードのタイトル（必須）
+            - outputs:（必須）
+              - [変数名]:
+                - type: 変数の型（必須）
+                - children: null（固定）
+            - variables:（必須）
+              - value_selector:（必須）
+                - [入力ノードID]
+                - [変数名]
+              - variable: 関数の引数名（必須）
+
+          特記事項:
+            - boolean型は利用できません。number型で0/1で代用してください。
+          使用可能なライブラリ:
+          - 基本ライブラリ:
+            - datetime: 日時処理
+            - math: 数学関数
+            - random: 乱数生成
+            - re: 正規表現
+            - string: 文字列操作
+          - システム関連:
+            - sys: システム操作
+            - os: OS操作
+            - time: 時間処理
+            - traceback: エラー追跡
+            - uuid: 一意識別子生成
+          - データ処理:
+            - json: JSON処理
+            - base64: エンコード/デコード
+            - collections: コレクション型
+            - itertools: イテレータ操作
+          - 暗号化/ハッシュ:
+            - hashlib: ハッシュ関数
+            - hmac: メッセージ認証
+            - binascii: バイナリ/ASCII変換
+          - 関数操作:
+            - functools: 関数ツール
+            - operator: 演算子インターフェース
+
+          出力変数の型:
+          - 基本型:
+            - string: 文字列型
+            - number: 数値型
+          - 特殊型:
+            - secret: 機密情報型
+            - object: オブジェクト型
+            - file: ファイル型
+          - 配列型:
+            - array: 基本配列型
+            - array[string]: 文字列配列
+            - array[number]: 数値配列
+            - array[object]: オブジェクト配列
+            - array[file]: ファイル配列
+          - その他:
+            - any: 任意の型
+
+          コード実装規則:
+          - main関数として実装（必須）
+          - 型アノテーション付与（必須）
+          - 戻り値は辞書形式（必須）
+          - ダブルクォートでコード全体を括る
+          - 内部のダブルクォートはエスケープ
+          - 改行は\nで表現
+          実装例:
+          ```python
+          def main(arg1: str) -> dict:
+              return {
+                  "result": arg1[7:-3],
+              }
+          ```
+
+      9. IF/ELSEノード
+          ユースケース:
+          - 条件に基づくフロー制御
+          - 複数パスへの分岐処理
+          - データ値による処理の振り分け
+          - 条件付きロジックの実装
+
+          構造:
+          - id: ユニークなID（必須）
+          - type: if-else（固定）
+          - data:（必須）
+            - title: ノードのタイトル（必須）
+            - cases:（必須）
+              - case_id: 条件ID（必須）
+              - logical_operator: and/or（必須）
+              - conditions:（必須）
+                - id: 条件のID（必須）
+                - varType: 変数の型（必須）
+                - variable_selector:（必須）
+                  - [入力ノードID]
+                  - [変数名]
+                - comparison_operator: 比較演算子（必須）
+                - value: 比較値（必須）
+                - numberVarType: 数値比較タイプ（数値型の場合必須）
+                - key: サブ変数のキー（オプション）
+                - sub_variable_condition: サブ変数の条件（オプション）
+
+          特記事項:
+          比較演算子:
+          - 文字列比較:
+            - contains: 文字列に指定値が含まれる
+            - not contains: 文字列に指定値が含まれない
+            - start with: 指定値で始まる
+            - end with: 指定値で終わる
+            - is: 完全一致
+            - is not: 完全不一致
+          - 数値比較:
+            - =: 等しい
+            - ≠: 等しくない
+            - >: より大きい
+            - <: より小さい
+            - ≥: 以上
+            - ≤: 以下
+          - 存在チェック:
+            - empty: 空である
+            - not empty: 空でない
+            - is null: null値である
+            - is not null: null値でない
+          - リスト操作:
+            - in: リスト内に存在する
+            - not in: リスト内に存在しない
+            - all of: すべての条件を満たす
+          - その他:
+            - exists: 存在する
+            - not exists: 存在しない
+
+          変数型:
+          - number: 数値型
+            - numberVarType: constant/variable
+          - string: 文字列型
+          - boolean: 真偽値型
+
+          エッジ接続:
+          - sourceHandle: 'true'
+            - IF条件成立時の接続
+          - sourceHandle: 'false'
+            - ELSE条件時の接続
+          - sourceType: if-else
+          - targetType: 接続先のノードタイプ
+
+      10. Variable Aggregatorノード
+          ユースケース:
+          - 複数のノードからの出力を集約
+          - 異なるパスからの結果の統合
+          - 分岐処理後のデータ統合
+          - 複数ソースからのデータマージ
+
+          構造:
+          - id: ユニークなID（必須）
+          - type: variable-aggregator（固定）
+          - data:（必須）
+            - title: ノードのタイトル（必須）
+            - output_type: 出力変数の型（必須）
+              - string: 文字列型
+              - number: 数値型
+              - boolean: 真偽値型
+            - variables: 集約する変数のリスト（必須）
+              - [入力ノードID, 変数名]の配列
+
+          特記事項:
+          データ集約パターン:
+          - IF/ELSE分岐後の統合:
+            - true分岐からの出力
+            - false分岐からの出力
+            - 単一の出力ストリームへの統合
+          
+          - 並列処理結果の統合:
+            - 複数LLMノードからの応答
+            - 複数APIコールの結果
+            - 異なる処理パスからの出力
+          
+          変数の順序:
+          - リストの順序が出力順序に影響
+          - 先に指定した変数が優先
+          - 後続の変数は条件付きで使用
+
+          型変換ルール:
+          - string型への変換:
+            - number: 文字列表現に変換
+            - boolean: "true"/"false"に変換
+          - number型への変換:
+            - string: 数値表現のみ許可
+            - boolean: 1/0に変換
+          - boolean型への変換:
+            - string: "true"/"false"のみ許可
+            - number: 0以外はtrue
+
+      11. Document Extractorノード
+          ユースケース:
+          - ドキュメントからのテキスト抽出
+          - ファイル内容の解析
+          - テキストデータの前処理
+
+          構造:
+          - id: ユニークなID（必須）
+          - type: document-extractor（固定）
+          - data:
+            - title: ノードのタイトル（必須）
+            - is_array_file: 配列入力かどうか（必須）
+            - variable_selector: 入力変数の指定（必須）
+              - [入力ノードID]
+              - [変数名]
+
+      12. Template Transformノード
+          ユースケース:
+          - テンプレート文字列への変数埋め込み
+          - 動的なメッセージ生成
+          - 条件付きテキスト生成
+          - 配列データの文字列化
+
+          構造:
+          - id: ユニークなID（必須）
+          - type: template-transform（固定）
+          - data:
+              title: ノードのタイトル（必須）
+              template: Jinja2形式のテンプレート（必須）
+              variables: 入力変数の配列（必須）
+                - value_selector: 変数の参照元
+                  - [入力ノードID]
+                  - [変数名]
+                  variable: テンプレート内で使用する変数名
+
+          テンプレート構文:
+          - 変数参照: 
+            - 基本形: {{ 変数名 }}
+            - フィルター使用: {{ 変数名|upper }}
+          - 条件分岐:
+            ```
+            {% if 条件 %}
+              条件成立時の文字列
+            {% else %}
+              条件不成立時の文字列
+            {% endif %}
+            ```
+          - ループ処理:
+            ```
+            {% for item in items %}
+              {{ item }}
+            {% endfor %}
+            ```
+
+          入力変数の型:
+          - string: 文字列
+          - number: 数値
+          - object: オブジェクト
+          - array: 配列
+          - arrayNumber: 数値配列
+          - arrayString: 文字列配列
+          - arrayObject: オブジェクト配列
+
+          出力:
+          - output: 生成された文字列（string型固定）
+
+      13. Answerノード
+          ユースケース:
+          - ワークフローの応答出力
+          - LLM出力の表示
+          - 変数値の表示
+          - 中間結果の確認
+
+          構造:
+          - id: ユニークなID（必須）
+          - type: answer（固定）
+          - data:
+              title: ノードのタイトル（必須）
+              answer: 応答テキスト（必須）
+                - 固定テキスト
+                - 変数参照: {{#ノードID.変数名#}}
+              variables: []  # オプション
+
+          特記事項:
+          - 変数参照:
+            - 形式: {{#ノードID.変数名#}}
+            - 複数の変数を組み合わせ可能
+            - システム変数も参照可能
+          
+          - 使用可能な変数型:
+            - string: 文字列
+            - number: 数値
+            - object: オブジェクト
+            - array: 配列
+            - arrayString: 文字列配列
+            - arrayNumber: 数値配列
+            ※ arrayObjectは非対応
+
+          - 接続:
+            - 前段: 全てのノードタイプから接続可能
+            - 後段: 全てのノードタイプに接続可能
+            - チャットモードでの特別な動作あり
+
+      16. パラメータ抽出ノード
+          ユースケース:
+          - テキストからの構造化データ抽出
+          - ユーザー入力の解析
+          - 情報の分類と整理
+          - 条件分岐のための入力解析
+
+          構造:
+          - id: ユニークなID（必須）
+          - type: parameter-extractor（固定）
+          - data:
+            - title: ノードのタイトル（必須）
+            - query: 入力変数の指定（必須）
+            - model: モデル設定（必須）
+            - reasoning_mode: 推論モード（必須）
+            - parameters: パラメータ定義（必須）
+            - instruction: プロンプト（必須）
+            - memory: メモリ設定（オプション）
+            - vision: 画像処理設定（オプション）
+
+          パラメータ型:
+          - string: 文字列型
+          - number: 数値型
+          - bool: 真偽値型
+          - select: 選択型（options必須）
+          - array[string]: 文字列配列型
+          - array[number]: 数値配列型
+          - array[object]: オブジェクト配列型
+
+          推論モード:
+          - prompt: 
+            - プロンプトベースの抽出
+            - 柔軟な抽出ルール定義可能
+          - function_call:
+            - 関数呼び出しベース
+            - より構造化された抽出
+
+          出力変数:
+          - [パラメータ名]: 各パラメータの抽出結果
+          - __is_success: 抽出成功フラグ（0/1）
+          - __reason: エラー理由（エラー時）
+
+          特記事項:
+          - パラメータ名は一意である必要がある
+          - 必須パラメータは抽出必須
+          - プロンプトは抽出ルールを明確に記述
+          - 画像処理は対応モデルのみ使用可能
+
+      17. YouTubeトランスクリプトノード
+          ユースケース:
+          - YouTubeビデオの字幕取得
+          - 音声コンテンツのテキスト化
+          - 多言語コンテンツの翻訳支援
+          - 動画内容の分析・要約
+
+          構造:
+          - id: ユニークなID（必須）
+          - data:
+              type: tool（固定）
+              title: Free YouTube Transcript API
+              provider_name: transcript（固定）
+              provider_id: transcript（固定）
+              provider_type: builtin（固定）
+              tool_label: Free YouTube Transcript API
+              tool_name: free_youtube_transcript（固定）
+              tool_configurations:
+                cookies: null
+                format: text（固定）
+                language: ja  # 言語コード
+                preserve_formatting: 0  # フォーマット保持
+                proxy: null
+              tool_parameters:
+                video_id:
+                  type: mixed（固定）
+                  value: YouTubeビデオID or 変数参照
+              outputs:
+                text:  # 字幕テキストの出力変数
+                  type: string
+
+          特記事項:
+          - video_idは以下の形式で指定可能:
+            - 直接指定: 'XLzul_7GPs4'
+            - 変数参照: '{{#[入力ノードID].[変数名]#}}'
+          - language設定:
+            - ja: 日本語
+            - en: 英語
+          - preserve_formatting:
+            - 0: フォーマット除去（推奨）
+            - 1: 原文フォーマット保持
+          - 出力変数:
+            - text: 取得した字幕テキスト（string型）
+
+      18. JinaReaderノード
+          ユースケース:
+          - ウェブページのテキスト抽出
+          - コンテンツスクレイピング
+          - ウェブ記事の要約
+          - 画像・リンクの収集
+
+          構造:
+          - id: ユニークなID（必須）
+          - type: tool（固定）
+          - data:
+              title: ノードのタイトル（必須）
+              provider_name: jina（固定）
+              provider_id: jina（固定）
+              provider_type: builtin（固定）
+              tool_label: JinaReader（固定）
+              tool_name: jina_reader（固定）
+              tool_configurations:
+                gather_all_images_at_the_end: 0/1  # 画像収集
+                gather_all_links_at_the_end: 0/1   # リンク収集
+                image_caption: 0/1                 # 画像キャプション
+                no_cache: 0/1                      # キャッシュ設定
+                proxy_server: プロキシURL          # プロキシ設定
+                summary: 0/1                       # 要約機能
+                target_selector: CSSセレクター     # 特定要素の抽出
+                wait_for_selector: CSSセレクター   # 待機要素
+              tool_parameters:
+                url:
+                  type: mixed（固定）
+                  value: URL文字列または変数参照
+              outputs:
+                text:
+                  type: string
+
+          特記事項:
+          - URL入力:
+            - 直接指定: 'https://example.com'
+            - 変数参照: '{{#[入力ノードID].[変数名]#}}'
+          
+          - 設定オプション:
+            - gather_all_images_at_the_end: 画像の一括収集
+            - gather_all_links_at_the_end: リンクの一括収集
+            - image_caption: 画像キャプションの取得
+            - summary: コンテンツの自動要約
+            - target_selector: 特定のDOM要素の抽出
+          
+          - プロキシ設定:
+            - アクセス制限のあるサイトへの対応
+            - 地域制限の回避
+            - 負荷分散
+
+          - キャッシュ制御:
+            - no_cache: 1でキャッシュ無効化
+            - 常に最新コンテンツを取得
+
+      19. TavilySearchノード
+          ユースケース:
+          - ウェブ検索の実行
+          - 情報収集
+          - コンテンツ調査
+          - ドメイン指定検索
+
+          構造:
+          - id: ユニークなID（必須）
+          - type: tool（固定）
+          - data:
+              title: ノードのタイトル（必須）
+              provider_name: tavily（固定）
+              provider_id: tavily（固定）
+              provider_type: builtin（固定）
+              tool_label: TavilySearch（固定）
+              tool_name: tavily_search（固定）
+              tool_configurations:
+                exclude_domains: 除外ドメインリスト    # オプション
+                include_domains: 含めるドメインリスト  # オプション
+                include_answer: true/false            # 回答含める
+                include_images: true/false            # 画像含める
+                include_raw_content: true/false       # 生コンテンツ
+                max_results: 検索結果数（1-10）       # 必須
+                search_depth: basic/advanced          # 検索深度
+              tool_parameters:
+                query:
+                  type: mixed（固定）
+                  value: 検索クエリまたは変数参照
+
+          特記事項:
+          - 検索クエリ:
+            - 直接指定: '検索したいキーワード'
+            - 変数参照: '{{#[入力ノードID].[変数名]#}}'
+          
+          - 検索深度:
+            - basic: 基本的な検索（高速）
+            - advanced: 詳細な検索（より多くの結果）
+          
+          - ドメイン制御:
+            - exclude_domains: 検索から除外するドメイン
+            - include_domains: 検索対象とするドメイン
+          
+          - 結果制御:
+            - max_results: 取得する検索結果の数
+            - include_answer: 関連する回答の取得
+            - include_images: 関連画像の取得
+            - include_raw_content: 未加工コンテンツ
+          - 次のノードへの接続:
+            - 検索結果からURLを取得するには、パラメータ抽出ノードを使用
