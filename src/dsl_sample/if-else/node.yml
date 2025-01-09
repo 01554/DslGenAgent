@@ -1,0 +1,36 @@
+workflow:
+  graph:
+    nodes:
+    - data:
+        cases:
+        - case_id: 'true'
+          conditions:
+          - comparison_operator: in
+            id: 05bf5bf9-9949-4af0-b902-01ed3ee70dea
+            value:
+            - image
+            varType: string
+            variable_selector:
+            - '1736386006466'
+            - image_or_text
+            - type
+          id: 'true'
+          logical_operator: and
+        - case_id: 5f03d7db-f509-4218-86bc-4289a800a5f6 # elifの例
+          conditions:
+          - comparison_operator: in
+            id: 4a4488e4-df66-48b2-835d-c74115c07fa0
+            value:
+            - document
+            varType: string
+            variable_selector:
+            - '1736386006466'
+            - image_or_text
+            - type
+          id: 5f03d7db-f509-4218-86bc-4289a800a5f6
+          logical_operator: and
+        desc: ''
+        selected: false
+        title: IF/ELSE
+        type: if-else
+      id: '1736386176480'

@@ -1,0 +1,30 @@
+workflow:
+  graph:
+    edges:
+    - data:
+        isInIteration: false
+        sourceType: start
+        targetType: if-else
+      id: 1736386006466-source-1736386176480-target
+      source: '1736386006466'
+      sourceHandle: source
+      target: '1736386176480'
+      targetHandle: target
+    - data:
+        isInIteration: false
+        sourceType: if-else
+        targetType: llm
+      id: 1736386176480-true-1736386321565-target
+      source: '1736386176480'
+      sourceHandle: 'true'
+      target: '1736386321565'
+      targetHandle: target
+    - data:
+        isInIteration: false
+        sourceType: if-else
+        targetType: document-extractor
+      id: 1736386176480-5f03d7db-f509-4218-86bc-4289a800a5f6-1736386362442-target
+      source: '1736386176480'
+      sourceHandle: 5f03d7db-f509-4218-86bc-4289a800a5f6
+      target: '1736386362442'
+      targetHandle: target

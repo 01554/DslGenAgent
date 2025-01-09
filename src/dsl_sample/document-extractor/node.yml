@@ -1,0 +1,13 @@
+workflow:
+  graph:
+    nodes:
+    - data:
+        desc: ''
+        is_array_file: false
+        selected: false
+        title: テキスト抽出ツール
+        type: document-extractor
+        variable_selector:
+        - '1736386006466'
+        - image_or_text
+      id: '1736386362442'

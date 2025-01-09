@@ -1,0 +1,21 @@
+workflow:
+  graph:
+    edges:
+    - data:
+        isInIteration: false
+        sourceType: start
+        targetType: llm
+      id: 1736385488409-source-1736385490749-target
+      source: '1736385488409'
+      sourceHandle: source
+      target: '1736385490749'
+      targetHandle: target
+    - data:
+        isInIteration: false
+        sourceType: llm
+        targetType: end
+      id: 1736385490749-source-1736385492836-target
+      source: '1736385490749'
+      sourceHandle: source
+      target: '1736385492836'
+      targetHandle: target

@@ -1,0 +1,35 @@
+workflow:
+  graph:
+    nodes:
+    - data: # 例1
+        desc: ''
+        selected: false
+        title: 開始
+        type: start
+        variables:
+        - label: input
+          max_length: 99999
+          options: []
+          required: true
+          type: paragraph
+          variable: input
+      id: '1736385488409'
+    - data: # 例2
+        desc: ''
+        selected: false
+        title: 開始
+        type: start
+        variables:
+        - allowed_file_extensions: []
+          allowed_file_types:
+          - image
+          - document
+          allowed_file_upload_methods:
+          - local_file
+          label: image_or_text
+          max_length: 48
+          options: []
+          required: true
+          type: file
+          variable: image_or_text
+      id: '1736386006466'
