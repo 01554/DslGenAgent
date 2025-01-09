@@ -1,50 +1,38 @@
 app:
-  mode: workflow
-  name: 画像から俳句生成
-  version: 0.1.5
   description: ''
+  icon: 🤖
+  icon_background: '#FFEAD5'
+  mode: workflow
+  name: 俳句ジェネレーター
+  use_icon_as_answer_icon: false
 kind: app
 version: 0.1.5
 workflow:
+
   graph:
     edges:
     - data:
         isInIteration: false
         sourceType: start
         targetType: llm
-      id: 1736386006466-source-1736386321565-target
-      source: 1736386006466
+      id: 1736388745406-source-1736388748511-target
+      source: '1736388745406'
       sourceHandle: source
-      target: 1736386321565
-      targetHandle: target
-    - data:
-        isInIteration: false
-        sourceType: llm
-        targetType: end
-      id: 1736386321565-source-1736386425450-target
-      source: 1736386321565
-      sourceHandle: source
-      target: 1736386425450
+      target: '1736388748511'
       targetHandle: target
     nodes:
     - data:
         desc: ''
-        selected: false
+        selected: true
         title: 開始
         type: start
-        variables:
-        - allowed_file_extensions: []
-          allowed_file_types:
-          - image
-          allowed_file_upload_methods:
-          - local_file
-          label: image
-          max_length: 48
-          options: []
-          required: true
-          type: file
-          variable: image
-      id: 1736386006466
+        variables: []
+      id: '1736388745406'
+      position:
+      selected: true
+      sourcePosition: right
+      targetPosition: left
+      type: custom
     - data:
         context:
           enabled: false
@@ -54,32 +42,15 @@ workflow:
           completion_params:
             temperature: 0.7
           mode: chat
-          name: gpt-4o-mini
+          name: o1-mini
           provider: openai
         prompt_template:
-        - id: b054d56c-790a-4076-ac71-af6e82378d97
-          role: system
-          text: 添付画像を元に俳句を読んで
+        - role: system
+          text: ''
         selected: false
-        title: 俳句LLM
+        title: LLM
         type: llm
         variables: []
         vision:
-          configs:
-            detail: low
-            variable_selector:
-            - 1736386006466
-            - image
-          enabled: true
-      id: 1736386321565
-    - data:
-        desc: ''
-        outputs:
-        - value_selector:
-          - 1736386321565
-          - text
-          variable: text
-        selected: true
-        title: 終了
-        type: end
-      id: 1736386425450
+          enabled: false
+      id: '1736388748511'
