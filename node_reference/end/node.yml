@@ -1,0 +1,48 @@
+      <end_node>
+        <output_ref>
+workflow:
+  graph:
+    nodes:
+    - data: # 例1
+        desc: ''
+        outputs:
+        - value_selector:
+          - '1736385490749'
+          - text
+          variable: text
+        selected: true
+        title: 終了
+        type: end
+      id: '1736385492836'
+    - data: # 例2
+        desc: ''
+        outputs:
+        - value_selector:
+          - '1736386321565'
+          - text
+          variable: text
+        - value_selector:
+          - '1736386369722'
+          - text
+          variable: text
+        - value_selector: []
+          variable: ''
+        selected: true
+        title: 終了
+        type: end
+      id: '1736386425450'
+  </output_ref>
+        <structure>
+          - id: ユニークなID（必須）
+          - type: end（固定）
+          - outputs:（必須）
+          - value_selector:（必須）
+            - [ノードID]
+            - [変数名]
+          - variable: 出力変数名（必須）
+        </structure>
+        <note>
+          - 少なくとも1つの出力変数が必要
+          - 複数の出力変数を定義可能
+        </note>
+      </end_node>

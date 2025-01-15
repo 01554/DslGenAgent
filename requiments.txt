@@ -1,5 +1,0 @@
-pydantic
-langgraph
-langchain_openai
-langchain
-python-dotenv==1.0.1
