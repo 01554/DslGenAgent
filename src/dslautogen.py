@@ -73,20 +73,27 @@ def generate_node(edge: Edge,llm:ChatOpenAI) -> Optional[str]: # Noneの場合�
 
 def main(user_request:str="テキストを受け取り（上限10000文字）、そのテキストから俳句を生成する", output_path:str="dsl.yml"):
 
-    llm_gpt4o_mini = ChatOpenAI(model="gpt-4o", temperature=0.0)
+    #llm_gpt4o_mini = ChatOpenAI(model="gpt-4o", temperature=0.0)
+
+    llm = ChatOpenAI(
+        model="deepseek-chat",
+        openai_api_key=os.getenv("DEEPSEEK_API_KEY"),
+        openai_api_base="https://api.deepseek.com",
+    )
+    
 
     # node_reference のディレクトリの構造からノードの一覧を生成
     node_list = NodeList().get_node_list()
 
     # ワークフローとエッジのつながりを生成
-    workflowplan_generator = WorkflowPlanGenerator(llm_gpt4o_mini)
+    workflowplan_generator = WorkflowPlanGenerator(llm)
     workflowplan = workflowplan_generator.generate_workflowplan(user_request, node_list)
     # エッジからノードを生成
-    node_generator = NodeGenerator(llm_gpt4o_mini)
+    node_generator = NodeGenerator(llm)
     nodes = [n for n in (node_generator.generate_node(e) for e in workflowplan.edges) if n]
     
     # ワークフローとノードを統合してDSLを生成
-    dsl_generator = DSLGenerator(llm_gpt4o_mini)
+    dsl_generator = DSLGenerator(llm)
     dsl = dsl_generator.generate_dsl(workflowplan.edges,nodes)
     
     with open(output_path, "w", encoding="utf-8") as f:
