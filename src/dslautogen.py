@@ -69,7 +69,12 @@ def generate_node(edge: Edge,llm:ChatOpenAI) -> Optional[str]: # Noneの場合�
     print(result)
     return result
     
-    
+def get_relation_edges(source_edge:Edge, workflowplan:WorkflowPlan) -> list[Edge]:
+    # source_edge の ノードIDから、そのノードに接続されているエッジを取得
+    source_node_id = source_edge.source_node_id
+    relation_edges = [e for e in workflowplan.edges if e.target_node_id == source_node_id or e.source_node_id == source_node_id]
+    return relation_edges
+
 
 def main(user_request:str="テキストを受け取り（上限10000文字）、そのテキストから俳句を生成する", output_path:str="dsl.yml"):
 
@@ -89,12 +94,23 @@ def main(user_request:str="テキストを受け取り（上限10000文字）、
     workflowplan_generator = WorkflowPlanGenerator(llm)
     workflowplan = workflowplan_generator.generate_workflowplan(user_request, node_list)
     # エッジからノードを生成
+
+    
+    nodes = []  
     node_generator = NodeGenerator(llm)
-    nodes = [n for n in (node_generator.generate_node(e) for e in workflowplan.edges) if n]
+    for edge in workflowplan.edges:
+        node = node_generator.generate_node(edge,get_relation_edges(edge, workflowplan))
+        if node:
+            nodes.append(node)
+        else:
+            print(f"ノード生成に失敗しました。エッジ: {edge}")
+            # TODO: ここでワークフロー生成からやりなおす
+
+
     
     # ワークフローとノードを統合してDSLを生成
     dsl_generator = DSLGenerator(llm)
-    dsl = dsl_generator.generate_dsl(workflowplan.edges,nodes)
+    dsl = dsl_generator.generate_dsl(user_request,workflowplan.edges,nodes)
     
     with open(output_path, "w", encoding="utf-8") as f:
         f.write(dsl)

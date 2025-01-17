@@ -1,0 +1,52 @@
+      <llm_node>
+      <output_ref>
+workflow:
+  graph:
+    nodes:
+    - data:
+        classes: # クラス分類を指定する
+        - id: '1' # クラス分類のID
+          name: {クラス分類の名前} # クラス分類の名前、このname に値するかどうかをLLMが判定する
+        - id: '2'
+          name: {クラス分類の名前}
+          ...
+        model:
+          completion_params:
+            temperature: 0.7
+          mode: chat
+          name: gpt-4o-mini
+          provider: openai
+        query_variable_selector: # クラス分類のために使用する変数を指定する
+        - 'source-input-1737074689261' # source のノードID
+        - input_text # source のノードの変数名
+        selected: false
+        title: 質問分類器 # ノードのタイトル
+        type: question-classifier # 質問分類のノードのタイプ
+        vision:
+          enabled: false # 固定
+      id: 'questionclassifier-173923086' # 質問分類のノードID
+      </output_ref>
+        <structure>
+          - data:（必須）
+            - classes:（必須）
+              - id: クラス分類のID（必須） 1-10の数字
+              - name: クラス分類の名前（必須） ユーザーの入力に対して必要なクラス分類
+            - model:（必須）
+            - provider: openai（固定）
+            - name: gpt-4o-mini（固定）
+            - mode: chat（固定）
+            - completion_params:
+              - temperature: 0.0-1.0の値（必須）
+            - query_variable_selector:（必須）
+              - source のノードID（必須）
+              - source のノードの変数名（必須）
+            - title: ノードのタイトル（必須）
+            - type: question-classifier # 質問分類のノードのタイプ
+            - vision:
+              - enabled: false
+        </structure>
+        <note>
+          - 変数参照形式: {{#ソースノードID.変数名#}}
+          - 出力は class_name という変数名で出力される
+        </note>
+      </llm_node>

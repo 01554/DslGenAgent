@@ -7,7 +7,7 @@ workflow:
         context:
           enabled: true
           variable_selector:
-          - '1736385488409'
+          - 'target-llm-173638' # source のノードID（NG:自分のID、targetのID）
           - input
         desc: ''
         model:
@@ -19,14 +19,14 @@ workflow:
         prompt_template:
         - id: 65c46dbe-98b4-4a3f-aafb-16f668d4ee86
           role: system
-          text: '{{#1736385488409.input#}}を要約してSNSで万バズを稼げる投稿文を生成'
+          text: '{{#target-llm-173638.input#}} {ロールを実現するために必要なPromptを埋める}' # source のノードID（NG:自分のID、targetのID） {}の中は適宜書き換える
         selected: false
         title: LLM
         type: llm
         variables: []
         vision:
           enabled: false
-      id: '1736385490749'
+      id: '17350193403'
     - data: # visionの例
         context:
           enabled: false
@@ -41,7 +41,7 @@ workflow:
         prompt_template:
         - id: b054d56c-790a-4076-ac71-af6e82378d97
           role: system
-          text: 添付画像には何が写っているか日本語で説明せよ
+          text: '{ロールを実現するために必要なPromptを埋める}' # visionの場合は 直接変数を展開できないので vision.configs.variable_selectorを必ず指定して、systemのプロンプトには画像の変数は展開しないようにしてください
         selected: false
         title: vision LLM
         type: llm
@@ -49,15 +49,16 @@ workflow:
         vision:
           configs:
             detail: low
-            variable_selector:
-            - '1736386006466'
+            variable_selector: 
+            - 'target-llm-173638'
             - image
           enabled: true
-      id: '1736386321565'
+      id: '17350193403'
       </output_ref>
         <structure>
           - id: ユニークなID（必須）
           - type: llm（固定）
+          - title: ノードのタイトル（必須）
           - model:（必須）
             - provider: openai（固定）
             - name: gpt-4o-mini（固定）
@@ -76,7 +77,7 @@ workflow:
         <note>
           - プロンプトはシングルクォートで括る必要あり
           - システムロールのプロンプトのみ使用可能
-          - 変数参照形式: {{#ノードID.変数名#}}
+          - 変数参照形式: {{#ソースノードID.変数名#}}
           - contextのvariable_selectorで指定した変数は、prompt_templateのtextでも使用して下さい。
         </note>
       </llm_node>

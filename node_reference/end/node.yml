@@ -8,7 +8,7 @@ workflow:
         outputs:
         - value_selector:
           - '1736385490749'
-          - text
+          - {入力変数名}
           variable: text
         selected: true
         title: 終了
@@ -19,11 +19,11 @@ workflow:
         outputs:
         - value_selector:
           - '1736386321565'
-          - text
+          - {入力変数名}
           variable: text
         - value_selector:
           - '1736386369722'
-          - text
+          - {入力変数名}
           variable: text
         - value_selector: []
           variable: ''
@@ -31,6 +31,18 @@ workflow:
         title: 終了
         type: end
       id: '1736386425450'
+    - data: # 例3
+        desc: ''
+        outputs:
+        - value_selector:
+          - '1737074689261'
+          - class_name
+          variable: class_name
+        selected: false
+        title: 終了
+        type: end
+      id: '1737074779990'
+
   </output_ref>
         <structure>
           - id: ユニークなID（必須）
@@ -38,11 +50,13 @@ workflow:
           - outputs:（必須）
           - value_selector:（必須）
             - [ノードID]
-            - [変数名]
+            - [入力変数名] 
           - variable: 出力変数名（必須）
         </structure>
         <note>
           - 少なくとも1つの出力変数が必要
           - 複数の出力変数を定義可能
+          - LLMからの入力は "text" という変数名で出力される
+          - question-classifier ノードからの出力は "class_name" という変数名で出力される
         </note>
       </end_node>
