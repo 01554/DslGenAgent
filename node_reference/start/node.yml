@@ -39,12 +39,13 @@
   <structure>
     - id: ユニークなID（必須）
     - type: start（固定）
+    - title: start（必須）
     - variables: 入力変数の配列（必須）
-    - type: 変数の型（必須）
-    - variable: 変数名（必須）
-    - label: 表示ラベル（必須）
-    - required: 必須入力かどうか（必須）
-    - その他設定（型に応じて必要）
+      - type: 変数の型（必須）
+      - variable: 変数名（必須）
+      - label: 表示ラベル（必須）
+      - required: 必須入力かどうか（必須）
+      - その他設定（型に応じて必要）
   </structure>
   <variable_type>
     - file（ファイル入力）:

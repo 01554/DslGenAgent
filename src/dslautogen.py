@@ -99,7 +99,7 @@ def main(user_request:str="テキストを受け取り（上限10000文字）、
     nodes = []  
     node_generator = NodeGenerator(llm)
     for edge in workflowplan.edges:
-        node = node_generator.generate_node(edge,get_relation_edges(edge, workflowplan))
+        node = node_generator.generate_node(edge,get_relation_edges(edge, workflowplan),nodes)
         if node:
             nodes.append(node)
         else:

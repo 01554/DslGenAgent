@@ -19,7 +19,7 @@ workflow:
         prompt_template:
         - id: 65c46dbe-98b4-4a3f-aafb-16f668d4ee86
           role: system
-          text: '{{#target-llm-173638.input#}} {ロールを実現するために必要なPromptを埋める}' # source のノードID（NG:自分のID、targetのID） {}の中は適宜書き換える
+          text: '{{#target-llm-173638.input#}} ワークフローに必要なPrompt' # source のノードID（NG:自分のID、targetのID） []の中は必ず書き換える
         selected: false
         title: LLM
         type: llm
@@ -41,7 +41,7 @@ workflow:
         prompt_template:
         - id: b054d56c-790a-4076-ac71-af6e82378d97
           role: system
-          text: '{ロールを実現するために必要なPromptを埋める}' # visionの場合は 直接変数を展開できないので vision.configs.variable_selectorを必ず指定して、systemのプロンプトには画像の変数は展開しないようにしてください
+          text: 'ワークフローに必要なPrompt' # visionの場合は 直接変数を展開できないので vision.configs.variable_selectorを必ず指定して、systemのプロンプトには画像の変数は展開しないようにしてください promptは必ず書き換えてください
         selected: false
         title: vision LLM
         type: llm
@@ -79,5 +79,7 @@ workflow:
           - システムロールのプロンプトのみ使用可能
           - 変数参照形式: {{#ソースノードID.変数名#}}
           - contextのvariable_selectorで指定した変数は、prompt_templateのtextでも使用して下さい。
+          - ノードの作業を実現するために必要なPromptは必ず新規で生成してください
+            - 要件をそのまま書くのではなく、要件を実現するために必要と思われる要素を全て含めた文章に膨らませること
         </note>
       </llm_node>

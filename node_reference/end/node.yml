@@ -8,7 +8,7 @@ workflow:
         outputs:
         - value_selector:
           - '1736385490749'
-          - {入力変数名}
+          - text
           variable: text
         selected: true
         title: 終了
@@ -19,12 +19,12 @@ workflow:
         outputs:
         - value_selector:
           - '1736386321565'
-          - {入力変数名}
+          - text
           variable: text
         - value_selector:
           - '1736386369722'
-          - {入力変数名}
-          variable: text
+          - class_name
+          variable: class_name
         - value_selector: []
           variable: ''
         selected: true
@@ -56,7 +56,7 @@ workflow:
         <note>
           - 少なくとも1つの出力変数が必要
           - 複数の出力変数を定義可能
-          - LLMからの入力は "text" という変数名で出力される
-          - question-classifier ノードからの出力は "class_name" という変数名で出力される
+          - source:LLMからのvalueは 変数名 "text" 
+          - source:question-classifier ノードからのvalueは 変数名 "class_name" 
         </note>
       </end_node>

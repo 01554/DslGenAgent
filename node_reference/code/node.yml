@@ -1,0 +1,45 @@
+workflow:
+  graph:
+
+    nodes:
+    - data:
+        desc: ''
+        selected: false
+        title: 開始
+        type: start
+        variables:
+        - label: arg1
+          max_length: 48
+          options: []
+          required: true
+          type: number
+          variable: arg1
+        - label: arg2
+          max_length: 48
+          options: []
+          required: true
+          type: number
+          variable: arg2
+      id: '1738055172177'
+    - data:
+        code: "\ndef main(arg1: int, arg2: int) -> dict:\n    return {\n        \"\
+          result\": str(arg1 + arg2)\n    }\n"
+        code_language: python3
+        desc: ''
+        outputs:
+          result:
+            children: null
+            type: string
+        selected: false
+        title: コード
+        type: code
+        variables:
+        - value_selector:
+          - '1738055172177'
+          - arg1
+          variable: arg1
+        - value_selector:
+          - '1738055172177'
+          - arg2
+          variable: arg2
+      id: '1738055175340'
