@@ -30,7 +30,7 @@
         type: code
         variables:
         - value_selector:
-          - start_001
+          - '[node_id]'
           - input
           variable: arg1
       id: 'code_python_spliter'
@@ -39,10 +39,10 @@
         error_handle_mode: terminated
         is_parallel: false
         iterator_selector:
-        - 'code_python_spliter'
+        - '[node_id]' 
         - result
         output_selector:
-        - 'code012'
+        - '[node_id]'
         - result
         output_type: array[string]
         parallel_nums: 10

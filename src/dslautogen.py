@@ -108,16 +108,28 @@ def main(user_request:str="テキストを受け取り（上限10000文字）、
 
     
     nodes = []  
+    source_node_ids = []
     node_generator = NodeGenerator(llm)
     for edge in workflowplan.edges:
-        node = node_generator.generate_node(edge,get_relation_edges(edge, workflowplan),nodes)
+        src_node_type = edge.source_node_type.value
+        src_node_id = edge.source_node_id
+        src_description = edge.description
+
+        node = node_generator.generate_node(src_node_type,src_node_id,src_description,get_relation_edges(edge, workflowplan),nodes)
         if node:
             nodes.append(node)
+            source_node_ids.append(src_node_id)
         else:
             print(f"ノード生成に失敗しました。エッジ: {edge}")
             # TODO: ここでワークフロー生成からやりなおす
 
-
+    for edge in workflowplan.edges:
+        if edge.target_node_id not in source_node_ids:
+            target_node_type = edge.target_node_type.value
+            target_node_id = edge.target_node_id
+            node = node_generator.generate_node(target_node_type,target_node_id,"",get_relation_edges(edge, workflowplan),nodes)
+            if node:
+                nodes.append(node)
     
     # ワークフローとノードを統合してDSLを生成
     dsl_generator = DSLGenerator(llm)

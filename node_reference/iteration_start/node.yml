@@ -30,24 +30,24 @@
         type: code
         variables:
         - value_selector:
-          - start_001
+          - start_001 # source のノードID（NG:自分のID、targetのID）
           - input
-          variable: arg1
+          variable: arg1 # mainに渡される時の引数名
       id: '1738232449083'
     - data:
         desc: ''
         error_handle_mode: terminated
         is_parallel: false
         iterator_selector:
-        - '1738232449083'
+        - '1738232449083' # source のノードID（NG:自分のID、targetのID）
         - result
         output_selector:
-        - '1738232954463'
+        - '1738232954463' # parentIdが自分のノードIDと一致する ノードのみ指定可能
         - result
         output_type: array[string]
         parallel_nums: 10
         selected: false
-        start_node_id: 1738232569563start
+        start_node_id: 1738232569563start # iteration-start のノードID
         title: イテレーション
         type: iteration
       id: '1738232569563'

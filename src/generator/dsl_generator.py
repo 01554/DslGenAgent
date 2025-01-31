@@ -124,7 +124,9 @@ class DSLGenerator:
         # 作業指示
         - type: tool_* はエッジの設定を type: tool になるように修正する
         例1: targetType: tool_article_node の場合は エッジの設定は targetType: tool になるよう変換する
-        例2: sourceType: tool_title_node の場合は エッジの設定は sourceType: tool になるよう変換する
+            sourceType: tool_title_node の場合は エッジの設定は sourceType: tool になるよう変換する
+        例2: type: tool_google_search の場合は エッジの設定は type: tool になるよう変換する
+             type: code の場合は toolが頭にないためそのまま code にする
         例3： targetType: end の場合は toolが頭にないためそのまま end にする
              sourceType: start の場合は toolが頭にないためそのまま start にする
              targetType: code の場合は toolが頭にないためそのまま code にする
@@ -138,6 +140,11 @@ class DSLGenerator:
         本来変換しないものまでtoolに修正した場合、あなたの会社に損害請求をします、注意して作業してください、あなたの作業は地球の未来を決めます
         出力前によく作業前と作業後のymlを比較してやり直すべきと判断したらやり直してください
         完成したymlのみ出力してください、
+
+        ## 作業手順
+        作業対象データの中から sourceType と targetType と type の設定されている行を確認する
+        その行の 設定値が tool_ で始まる場合は type を tool に変換する
+        その行の 設定値が tool_で始まらない場合はそのままにする
         """
         prompt = ChatPromptTemplate.from_messages(
         [
@@ -152,7 +159,6 @@ class DSLGenerator:
         ) 
         chain = prompt | self.llm | StrOutputParser()
         result = chain.invoke({"yaml": yaml})
-        result = result.replace("```yaml\n", "").replace("\n```", "")
         return result
 
     def generate_dsl(self, user_request:str, edges: list[Edge], nodes: list[str]) -> str:

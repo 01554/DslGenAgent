@@ -13,7 +13,7 @@ workflow:
           required: true
           type: text-input
           variable: search_query
-      id: '1738057672664'
+      id: 'start_node_001'
     - data:
         desc: ''
         provider_id: tavily # 固定 
@@ -36,7 +36,7 @@ workflow:
         tool_parameters:
           query:
             type: mixed
-            value: '{{#1738057672664.search_query#}}'
+            value: '{{#start_node_001.search_query#}}'
         type: tool # 固定
-      id: '1738057696714'
+      id: 'tavily_search_001'
 

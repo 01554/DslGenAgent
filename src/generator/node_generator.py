@@ -7,13 +7,11 @@ from typing import Optional
 class NodeGenerator:
     def __init__(self, llm:ChatOpenAI):
         self.llm = llm
-    def generate_node(self, source_edge: Edge, relation_edges: list[Edge],created_nodes:list[str]) -> Optional[str]: # Noneの場合はワークフロー生成からやり直し
+    def generate_node(self, node_type:str, node_id:str, description:str, relation_edges: list[Edge],created_nodes:list[str]) -> Optional[str]: # Noneの場合はワークフロー生成からやり直し
         """
         エッジの情報を元にノードを生成
         """
-        node_type = source_edge.source_node_type.value
-        node_id = source_edge.source_node_id
-        description = source_edge.description
+        print(f"-------------------------------- generate_node {node_type} --------------------------------")
         
         # node_reference ディレクトリの下に存在するか確認
         current_dir = os.path.dirname(os.path.abspath(__file__))
