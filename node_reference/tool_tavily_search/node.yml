@@ -1,0 +1,42 @@
+workflow:
+  graph:
+    nodes:
+    - data:
+        desc: ''
+        selected: false
+        title: 開始
+        type: start
+        variables:
+        - label: search_query
+          max_length: 256
+          options: []
+          required: true
+          type: text-input
+          variable: search_query
+      id: '1738057672664'
+    - data:
+        desc: ''
+        provider_id: tavily # 固定 
+        provider_name: tavily # 固定
+        provider_type: builtin # 固定
+        title: Tavily Search
+        tool_configurations: # 固定
+          days: 365 # 固定
+          exclude_domains: null # 固定
+          include_answer: 0 # 固定
+          include_domains: null # 固定
+          include_image_descriptions: 0 # 固定
+          include_images: 0 # 固定
+          include_raw_content: 0 # 固定
+          max_results: 20 # 固定
+          search_depth: basic # 固定
+          topic: general # general もしくは news を入れる、この二つのみ 
+        tool_label: Tavily Search
+        tool_name: tavily_search
+        tool_parameters:
+          query:
+            type: mixed
+            value: '{{#1738057672664.search_query#}}'
+        type: tool # 固定
+      id: '1738057696714'
+

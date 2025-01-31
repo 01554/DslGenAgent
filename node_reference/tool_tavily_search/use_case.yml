@@ -1,0 +1,48 @@
+  <use_case>
+  - Tavily is a search API designed for AI agents and applications, offering precise and context-aware search results. It handles complex search queries and extracts relevant information from the web, providing structured output.
+  - output format は json
+  - 各項目の説明
+    - text: 検索結果のテキストを合成したもの resultごとに処理しないのであればこれを利用する
+    - files: 利用しない
+    - json: 検索結果の詳細
+      - query: 検索クエリ
+      - results: 検索結果のリスト
+        - title: 検索結果のタイトル
+        - url: 検索結果のURL
+        - content: 検索結果の内容
+        - score: クエリとの関連スコア
+  - output sample
+```json
+{
+  "text": "piyopiyo\nfugafuga", 
+  "files": [],
+  "json": [
+    {
+      "query": "query",
+      "follow_up_questions": null,
+      "answer": null,
+      "images": [],
+      "results": [
+        {
+          "title": "hogehoge",
+          "url": "https://example.dev/foo",
+          "content": "piyopiyo",
+          "score": 0.74363416,
+          "raw_content": null
+        },
+        {
+          "title": "foo - piyo",
+          "url": "https://example.com/bar",
+          "content": "fugafuga",
+          "score": 0.6711479,
+          "raw_content": null
+        }
+      ],
+      "response_time": 1.77
+    }
+  ]
+}
+```
+  - 出力は基本的にtextを使う、個別に処理したい場合はjsonを使う
+  </use_case>
+

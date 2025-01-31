@@ -1,0 +1,18 @@
+    - data:
+        isInIteration: false
+        sourceType: start
+        targetType: tool # tavily_searchを使う場合はType tool で固定
+      id: 1738057672664-source-1738057696714-target
+      source: '1738057672664'
+      sourceHandle: source
+      target: '1738057696714'
+      targetHandle: target
+    - data:
+        isInIteration: false
+        sourceType: tool # tavily_searchを使う場合はType tool で固定
+        targetType: end
+      id: 1738057696714-source-1738058691264-target
+      source: '1738057696714'
+      sourceHandle: source
+      target: '1738058691264'
+      targetHandle: target

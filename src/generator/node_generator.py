@@ -43,7 +43,7 @@ class NodeGenerator:
             "\n\n関連エッジ: {relation_edges}\n\n"
             "作成済みのノード: {created_nodes}\n\n"
             "{node_type}の仕様は以下の通りです。\n{node_reference}"
-            "\n<output_ref>はノードの出力を参照するためのものです。各項目で固定ではないものは全て適切な値に書き換えること\n"
+            "\n<output_ref>はノード作成にあたり参考するためのものです。各項目で固定ではないものは全て適切な値に書き換えること\n"
             "\n<use_case>はノードの使用方法を参照するためのものです。\n{use_case_reference}"
             "\n\n 出力は生成したyml部分のみ出力してください"
             )

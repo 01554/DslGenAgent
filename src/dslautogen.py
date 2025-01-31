@@ -1,4 +1,6 @@
 from langchain_openai import ChatOpenAI
+from langchain_anthropic import ChatAnthropic
+
 from langchain_core.runnables import RunnableSequence
 from langchain.output_parsers import CommaSeparatedListOutputParser
 from langchain_core.output_parsers import StrOutputParser
@@ -18,7 +20,7 @@ from pprint import pprint
 
 from src.util import util
 from src.util.nodelist import NodeList
-
+from src.util.edgesamples import EdgeSamples
 from src.structure.workflowplan import WorkflowPlan
 from src.structure.edge import Edge
 
@@ -79,20 +81,29 @@ def get_relation_edges(source_edge:Edge, workflowplan:WorkflowPlan) -> list[Edge
 def main(user_request:str="テキストを受け取り（上限10000文字）、そのテキストから俳句を生成する", output_path:str="dsl.yml"):
 
     #llm_gpt4o_mini = ChatOpenAI(model="gpt-4o", temperature=0.0)
-
+    """ DeepSeek Chatが重すぎて動かなくなっているので 一旦削除 Claudeを使用する 
     llm = ChatOpenAI(
         model="deepseek-chat",
         openai_api_key=os.getenv("DEEPSEEK_API_KEY"),
         openai_api_base="https://api.deepseek.com",
     )
+    """
+    llm = ChatAnthropic(
+        model="claude-3-5-sonnet-20240620",
+        anthropic_api_key=os.getenv("CLAUDE_API_KEY"),
+        max_tokens=8192,
+        temperature=0.0,
+    )
     
 
     # node_reference のディレクトリの構造からノードの一覧を生成
     node_list = NodeList().get_node_list()
+    edge_samples = EdgeSamples().get_edge_samples()
 
     # ワークフローとエッジのつながりを生成
     workflowplan_generator = WorkflowPlanGenerator(llm)
-    workflowplan = workflowplan_generator.generate_workflowplan(user_request, node_list)
+    workflowplan = workflowplan_generator.generate_workflowplan(user_request, node_list, edge_samples)
+    
     # エッジからノードを生成
 
     

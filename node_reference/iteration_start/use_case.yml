@@ -1,0 +1,13 @@
+  <use_case>
+  - イテレーションノードの利用するとき必ず使わなければならない
+  - edgesにて iteration-id を指定しなければならない
+  - たとえば start で受け取ったArray[Files] をイテレーターで処理する場合
+    - start ノードの target として iteration ノードを設定する
+    - iteration の中身として iteration-start ノードを設定する
+    - iteration-start ノードの target として Fileを処理するためのノードを設定する
+    - iteration の出力を集約するための code ノードを設定する
+    - code ノードの出力として end ノードを設定する
+
+  </use_case>
+
+

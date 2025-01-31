@@ -1,0 +1,42 @@
+  graph:
+    edges:
+    - data:
+        isInIteration: false
+        sourceType: start
+        targetType: code
+      id: start_001-source-code001-target
+      source: start_001
+      sourceHandle: source
+      target: 'code001'
+      targetHandle: target
+
+    # イテレーションを使う場合、はじめにイテレーションへの入力と、イテレーションからの出力をつなぐ
+    - data:
+        isInIteration: false
+        sourceType: code
+        targetType: iteration
+      id: code001-source-iteration001-target
+      source: 'code001'
+      sourceHandle: source
+      target: 'iteration001'
+      targetHandle: target
+    - data:
+        isInIteration: false
+        sourceType: iteration
+        targetType: end
+      id: iteration001-source-end001-target
+      source: 'iteration001'
+      sourceHandle: source
+      target: 'end001'
+      targetHandle: target
+    # イテレーションの中身は、isInIterationを true にして、iteration_id に親であるiterationのIDを指定したtype: iteration-startから始まる
+    - data:
+        isInIteration: true
+        iteration_id: 'iteration001'
+        sourceType: iteration-start
+        targetType: code
+      id: iteration001start-source-code002-target
+      source: iteration001start
+      sourceHandle: source
+      target: 'code002'
+      targetHandle: target

@@ -1,0 +1,102 @@
+    nodes:
+    - data:
+        selected: false
+        title: 開始
+        type: start
+        variables:
+        - allowed_file_extensions: []
+          allowed_file_types:
+          - image
+          allowed_file_upload_methods:
+          - local_file
+          - remote_url
+          label: 変換文字列
+          max_length: 255
+          required: true
+          type: paragraph
+          variable: input
+      id: start_001
+    - data:
+        code: "\ndef main(arg1: str) -> dict:\n    result = arg1.split('\\n')\n\n\
+          \    return {\n        \"result\": result,\n    }\n"
+        code_language: python3
+        desc: ''
+        outputs:
+          result:
+            children: null
+            type: array[string]
+        selected: false
+        title: コード
+        type: code
+        variables:
+        - value_selector:
+          - start_001
+          - input
+          variable: arg1
+      id: '1738232449083'
+    - data:
+        desc: ''
+        error_handle_mode: terminated
+        is_parallel: false
+        iterator_selector:
+        - '1738232449083'
+        - result
+        output_selector:
+        - '1738232954463'
+        - result
+        output_type: array[string]
+        parallel_nums: 10
+        selected: false
+        start_node_id: 1738232569563start
+        title: イテレーション
+        type: iteration
+      id: '1738232569563'
+
+    - data:
+        desc: ''
+        isInIteration: true
+        selected: false
+        title: ''
+        type: iteration-start # 固定 iteration-startには二つのtypeの指定が必要
+      draggable: false
+      id: 1738232569563start
+      parentId: '1738232569563'
+      type: custom-iteration-start # 固定 iteration-startには二つのtypeの指定が必要でこちらは custom-iteration-start でなければならない
+    - data:
+        desc: ''
+        outputs:
+        - value_selector:
+          - '1738232569563'
+          - output
+          variable: output
+        selected: false
+        title: 終了
+        type: end
+      id: '1738232618892'
+
+    - data:
+        code: "\ndef main(index: str, item: str) -> dict:\n    meow = \"\"\n    for\
+          \ f in range(index):\n        meow += 'にゃー'\n    return {\n        \"result\"\
+          : item + meow,\n    }\n"
+        code_language: python3
+        desc: ''
+        isInIteration: true
+        iteration_id: '1738232569563'
+        outputs:
+          result:
+            children: null
+            type: string
+        selected: false
+        title: にゃー
+        type: code
+        variables:
+        - value_selector:
+          - '1738232569563'
+          - index
+          variable: index
+        - value_selector:
+          - '1738232569563'
+          - item
+          variable: item
+      id: '1738232954463'
+      parentId: '1738232569563'

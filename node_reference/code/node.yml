@@ -29,7 +29,7 @@ workflow:
         outputs:
           result:
             children: null
-            type: string
+            type: array[string]
         selected: false
         title: コード
         type: code
