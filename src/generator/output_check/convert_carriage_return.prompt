@@ -1,0 +1,19 @@
+        # 作業指示
+        codeノードとLLMノードのpromptの中は改行を\nで表現するように修正する
+        NG例:
+        - data:
+            code: "def main(expanded_keywords: arg1) -> dict:
+        return {{
+            \"result\": result = arg1.split('\n')
+        }}"       
+
+        OK例:
+        - data:
+            code: "\ndef main(arg1: str) -> dict:\n    result = arg1.split('\\n')\n\n\
+            \    return {{\n        \"result\": result,\n    }}\n"
+        
+        ### 作業対象データ
+        {yaml}
+
+        ## 作業上の注意
+        完成したymlのみ出力 

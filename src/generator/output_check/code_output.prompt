@@ -1,0 +1,45 @@
+# codeノードの次以降のノードでcodeの出力を使うときの注意点
+codeノードの出力は、codeブロックに書かれたreturnのdictのKeyそのまま適用する
+すなわち、return {{ "output": "{{result}}" }} であれば 次のノードはoutuputを引数としてを受け取り、return {{ "text": "{{result}}" }} であればtextを引数として受け取る
+
+
+## NG例
+- data:
+    code: "def main(user_input_number: int) -> dict:\n    square = user_input_number ** 2\n    cube = user_input_number ** 3\n    return {{\n        \"square\": str(square),\n        \"cube\": str(cube)\n    }}"
+  id: 'code001'
+- data:
+    code: "def main(square: int) -> str:\n    \n    return {{\n        \"square\": "squareは" + str(square) でした\n    }}"
+    <中略>
+    - value_selector:
+      - 'code001'
+      - text
+      variable: square
+    selected: false
+    type: code
+  id: 'code002'
+
+## OK例
+- data:
+    code: "def main(user_input_number: int) -> dict:\n    square = user_input_number ** 2\n    cube = user_input_number ** 3\n    return {{\n        \"square\": str(square),\n        \"cube\": str(cube)\n    }}"
+  id: 'code001'
+- data:
+    code: "def main(square: int) -> str:\n    \n    return {{\n        \"square\": "squareは" + str(square) でした\n    }}"
+    <中略>
+    - value_selector:
+      - 'code001'
+      - square
+      variable: square
+    selected: false
+    type: code
+  id: 'code002'
+
+## 作業指示
+Codeノードの出力を使おうとするノードのvalue_selectorを確認し、対象codeノードのcodeブロックでreturnしているdictのKeyと一致しているか確認をする
+- 相違がある場合は修正をして完全版のymlを
+- 相違がない場合は、修正をせず、入力されたymlをそのまま全て出力する
+
+### 作業対象データ
+{yaml}
+
+## 作業上の注意
+完成したymlのみ出力

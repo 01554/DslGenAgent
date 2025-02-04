@@ -1,0 +1,38 @@
+        # yml仕様
+        - nodes: 以下に設定されるノードで の isInIteration が true の場合は parentId を指定しなければならない
+        - parentId は iteration ノードのIDを指定する
+        - parentId は id と同じインデントに配置する
+        
+        ### OK 例
+        - data:
+            type: iteration-start
+            title: イテレーション開始
+            desc: ''
+            isInIteration: true
+          parentId: iteration001
+          id: iteration001start
+          type: custom-iteration-start
+
+        ### NG 例
+        - data:
+            type: iteration-start
+            title: イテレーション開始
+            desc: ''
+            isInIteration: true
+            parentId: iteration001
+          id: iteration001start
+          type: custom-iteration-start
+
+
+        ### 作業対象データ
+        {yaml}
+
+        ### 作業指示
+        - 作業対象データの中で isInIteration が true の場合は parentId が存在するか確認
+        - parentId が存在しない場合は parentId を付与する
+        - parentId は iteration ノードのIDを指定する
+        - yml仕様に従って付与する
+        - parentIdが存在するがインデントが違う場合も修正する
+
+        ## 作業上の注意
+        -  完成したymlのみ出力 

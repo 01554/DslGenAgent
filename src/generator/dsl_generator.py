@@ -8,7 +8,6 @@ class DSLGenerator:
     def __init__(self, llm:ChatOpenAI):
         self.llm = llm
     def extract_yaml_content(self, yml_content: str) -> str:
-        #self._extract_yaml_content(yml_content, "```yaml", "```")
         return self._extract_yaml_content(yml_content, "app:", "```")
 
     def _extract_yaml_content(self, yml_content: str, start_marker:str, end_marker:str) -> str:
@@ -23,48 +22,26 @@ class DSLGenerator:
         
         yaml_content = yml_content[start_index:end_index].strip()
         return yaml_content
-
-    def iteration_parentId(self, yaml:str) -> str:
-        output_prompt = """
-        # yml仕様
-        - nodes: 以下に設定されるノードで の isInIteration が true の場合は parentId を指定しなければならない
-        - parentId は iteration ノードのIDを指定する
-        - parentId は id と同じインデントに配置する
+    
+    def output_check(self, yaml:str) -> str:
+        # プロンプトファイルのディレクトリパスを取得
+        current_dir = os.path.dirname(os.path.abspath(__file__))
+        prompt_dir = os.path.join(current_dir, "output_check")
         
-        ### OK 例
-        - data:
-            type: iteration-start
-            title: イテレーション開始
-            desc: ''
-            isInIteration: true
-          parentId: iteration001
-          id: iteration001start
-          type: custom-iteration-start
+        # ディレクトリ内の全てのpromptファイルを処理
+        for prompt_file in os.listdir(prompt_dir):
+            if prompt_file.endswith('.prompt'):
+                prompt_path = os.path.join(prompt_dir, prompt_file)
+                with open(prompt_path, 'r', encoding='utf-8') as f:
+                    output_check_prompt = f.read()
+                # 各プロンプトに対してLLMを実行
+                print(f"---- output_check_prompt: {prompt_file}")
+                yaml = self._output_check(output_check_prompt, yaml)
+                yaml = self.extract_yaml_content(yaml)
+        
+        return yaml
 
-        ### NG 例
-        - data:
-            type: iteration-start
-            title: イテレーション開始
-            desc: ''
-            isInIteration: true
-            parentId: iteration001
-          id: iteration001start
-          type: custom-iteration-start
-
-
-        ### 作業対象データ
-        {yaml}
-
-        ### 作業指示
-        - 作業対象データの中で isInIteration が true の場合は parentId が存在するか確認
-        - parentId が存在しない場合は parentId を付与する
-        - parentId は iteration ノードのIDを指定する
-        - yml仕様に従って付与する
-        - parentIdが存在するがインデントが違う場合も修正する
-
-        ## 作業上の注意
-        -  完成したymlのみ出力 
-        """
+    def _output_check(self, output_check_prompt:str, yaml:str) -> str:
         prompt = ChatPromptTemplate.from_messages(
         [
             (
@@ -72,7 +49,7 @@ class DSLGenerator:
                 "あなたはノーコードツールDifyのDSLを作成する専門家です。",
             ),
             ('human', 
-                f"{output_prompt}"
+                f"{output_check_prompt}"
                 )
             ]
         )
@@ -80,86 +57,6 @@ class DSLGenerator:
         result = chain.invoke({"yaml": yaml})
         return result
 
-
-    def convert_carriage_return(self, yaml:str) -> str:
-        output_prompt = """
-        # 作業指示
-        codeノードとLLMノードのpromptの中は改行を\\nで表現するように修正する
-        NG例:
-        - data:
-            code: "def main(expanded_keywords: arg1) -> dict:
-        return {{
-            \\"result\\": result = arg1.split('\\n')
-        }}"       
-
-        OK例:
-        - data:
-            code: "\\ndef main(arg1: str) -> dict:\\n    result = arg1.split('\\n')\\n\\n\
-            \\    return {{\\n        \\"result\\": result,\\n    }}\\n"
-        
-        ### 作業対象データ
-        {yaml}
-
-        ## 作業上の注意
-        完成したymlのみ出力 
-        """
-        prompt = ChatPromptTemplate.from_messages(
-        [
-            (
-                "system",
-                "あなたはノーコードツールDifyのDSLを作成する専門家です。",
-            ),
-            ('human', 
-                f"{output_prompt}"
-                )
-            ]
-        )
-        chain = prompt | self.llm | StrOutputParser()
-        result = chain.invoke({"yaml": yaml})
-        result = result.replace("```yaml\n", "").replace("\n```", "")
-        return result
-
-    def tool_node_fix(self, yaml:str) -> str:
-        output_prompt = """
-        # 作業指示
-        - type: tool_* はエッジの設定を type: tool になるように修正する
-        例1: targetType: tool_article_node の場合は エッジの設定は targetType: tool になるよう変換する
-            sourceType: tool_title_node の場合は エッジの設定は sourceType: tool になるよう変換する
-        例2: type: tool_google_search の場合は エッジの設定は type: tool になるよう変換する
-             type: code の場合は toolが頭にないためそのまま code にする
-        例3： targetType: end の場合は toolが頭にないためそのまま end にする
-             sourceType: start の場合は toolが頭にないためそのまま start にする
-             targetType: code の場合は toolが頭にないためそのまま code にする
-             sourceType: iteration の場合は toolが頭にないためそのまま iteration にする
-             sourceType: iteration-start の場合は toolが頭にないためそのまま iteration-start にする
-
-        ### 作業対象データ
-        {yaml}
-
-        ## 作業上の注意
-        本来変換しないものまでtoolに修正した場合、あなたの会社に損害請求をします、注意して作業してください、あなたの作業は地球の未来を決めます
-        出力前によく作業前と作業後のymlを比較してやり直すべきと判断したらやり直してください
-        完成したymlのみ出力してください、
-
-        ## 作業手順
-        作業対象データの中から sourceType と targetType と type の設定されている行を確認する
-        その行の 設定値が tool_ で始まる場合は type を tool に変換する
-        その行の 設定値が tool_で始まらない場合はそのままにする
-        """
-        prompt = ChatPromptTemplate.from_messages(
-        [
-            (
-                "system",
-                "あなたはノーコードツールDifyのDSLを作成する専門家です。",
-            ),
-            ('human', 
-                f"{output_prompt}"
-                )
-            ]
-        ) 
-        chain = prompt | self.llm | StrOutputParser()
-        result = chain.invoke({"yaml": yaml})
-        return result
 
     def generate_dsl(self, user_request:str, edges: list[Edge], nodes: list[str]) -> str:
         
@@ -318,9 +215,7 @@ class DSLGenerator:
         )
         chain = prompt | self.llm | StrOutputParser()
         result = chain.invoke({"user_request": user_request, "edges": edges, "nodes": nodes, "end_node_reference": end_node_reference})
-        result = self.convert_carriage_return(result)
-        result = self.tool_node_fix(result)
-        result = self.iteration_parentId(result)
+        result = self.output_check(result)
 
         result = self.extract_yaml_content(result)
         

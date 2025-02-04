@@ -40,10 +40,10 @@
         is_parallel: false
         iterator_selector:
         - '[node_id]' 
-        - result
+        - [変数名]
         output_selector:
-        - '[node_id]'
-        - result
+        - '[node_id]' # イテレーションの内部で使われる最後のnode_id
+        - [output変数] # イテレーションの内部で使われる最後のnodeの出力変数、codeであればresult、検索であればtextなどそれぞれ違うので最後のノードを確認して埋める
         output_type: array[string]
         parallel_nums: 10
         selected: false

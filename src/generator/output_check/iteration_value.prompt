@@ -1,0 +1,51 @@
+# 作業指示 1
+
+- iterationのvalueを使いたいノードは、inputの値をiteration_startノードではなくiterationノードにしなければらない
+    - iteration_start は出力する値が無いため、iteration_startの次に来るノードにinputが必要な場合は、iterationノード.item or iterationノード.index となる
+NG例: {{#iteration_start_node_id.input#}}
+OK: {{#iteration_node_id.item#}}
+---
+NG例
+        variables:
+        - value_selector:
+          - 'iteration_start_node_id'
+          - current_value
+          variable: value
+        - value_selector:
+          - 'iteration_start_node_id'
+          - index
+          variable: index
+
+OK:
+        variables:
+        - value_selector:
+          - 'iteration_node_id'
+          - index
+          variable: index
+        - value_selector:
+          - 'iteration_node_id'
+          - item
+          variable: item
+
+# 作業指示2
+- iterationの終了を受け取るノードは、outputを受け取る
+
+NG例:
+        outputs:
+          - variable: result
+            value_selector:
+              - iteration001
+              - result
+OK
+        outputs:
+        - value_selector:
+          - iteration001
+          - output
+          variable: result
+
+
+### 作業対象データ
+{yaml}
+
+## 作業上の注意
+完成したymlのみ出力 
