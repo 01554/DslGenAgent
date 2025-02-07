@@ -1,0 +1,67 @@
+app:
+  mode: workflow
+  name: テキストをコードブロック形式に整形するワークフロー
+  version: 0.1.5
+
+workflow:
+  graph:
+    edges:
+    - source: start1
+      target: code1
+      data:
+        sourceType: start
+        targetType: code
+      sourceHandle: source
+    - source: code1
+      target: end1
+      data:
+        sourceType: code
+        targetType: end
+      sourceHandle: source
+
+    nodes:
+    - data:
+        desc: ''
+        selected: false
+        title: 開始
+        type: start
+        variables:
+        - label: input
+          max_length: 99999
+          options: []
+          required: true
+          type: paragraph
+          variable: input
+      id: 'start1'
+
+    - data:
+        code: |
+          def main(input_text: str) -> dict:
+              return {
+                  'result': f"```\n{input_text}\n```"
+              }
+        code_language: python3
+        desc: ''
+        outputs:
+          result:
+            children: null
+            type: string
+        selected: false
+        title: コード
+        type: code
+        variables:
+        - value_selector:
+          - 'start1'
+          - input
+          variable: input_text
+      id: 'code1'
+
+    - data:
+        outputs:
+        - value_selector:
+          - 'code1'
+          - result
+          variable: generatedText
+        type: end
+        title: 終了
+      id: 'end1'

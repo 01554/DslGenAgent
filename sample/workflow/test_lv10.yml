@@ -1,0 +1,75 @@
+app:
+  mode: workflow
+  name: 数値の2乗と3乗を計算するワークフロー
+  version: 0.1.5
+
+workflow:
+  graph:
+    edges:
+    - source: start001
+      target: code001
+      id: start001-source-code001-target
+      data:
+        sourceType: start
+        targetType: code
+        isInIteration: false
+      sourceHandle: source
+      targetHandle: target
+      type: custom
+      zIndex: 0
+    - source: code001
+      target: end001
+      id: code001-source-end001-target
+      data:
+        sourceType: code
+        targetType: end
+        isInIteration: false
+      sourceHandle: source
+      targetHandle: target
+      type: custom
+      zIndex: 0
+
+    nodes:
+    - data:
+        type: start
+        title: 開始
+        desc: ユーザーから入力された数値をコードノードに渡す
+        variables:
+        - type: number
+          variable: user_input
+          label: 数値入力
+          required: true
+          min: 0
+          max: 1000000
+      id: start001
+    - data:
+        type: code
+        title: 計算
+        desc: ユーザーから入力された数値を計算し、結果をエンドノードに渡す
+        code_language: python3
+        code: "\ndef main(user_input: int) -> dict:\n    square = user_input ** 2\n    cube = user_input ** 3\n    return {\n        \"square\": str(square),\n        \"cube\": str(cube)\n    }\n"
+        outputs:
+          square:
+            type: string
+          cube:
+            type: string
+        variables:
+        - variable: user_input
+          value_selector:
+          - start001
+          - user_input
+      id: code001
+    - data:
+        type: end
+        title: 終了
+        desc: 計算結果を受け取り、ワークフローを終了する
+        outputs:
+        - value_selector:
+          - code001
+          - square
+          variable: square
+        - value_selector:
+          - code001
+          - cube
+          variable: cube
+      id: end001

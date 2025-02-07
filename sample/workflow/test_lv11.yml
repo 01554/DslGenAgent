@@ -1,0 +1,96 @@
+app:
+  mode: workflow
+  name: 入力文から人名を抽出するワークフロー
+  version: 0.1.5
+
+workflow:
+  graph:
+    edges:
+      - source: start001
+        target: llm001
+        id: start001-source-llm001-target
+        data:
+          sourceType: start
+          targetType: llm
+          isInIteration: false
+        sourceHandle: source
+        targetHandle: target
+        type: custom
+        zIndex: 0
+      - source: llm001
+        target: code001
+        id: llm001-source-code001-target
+        data:
+          sourceType: llm
+          targetType: code
+          isInIteration: false
+        sourceHandle: source
+        targetHandle: target
+        type: custom
+        zIndex: 0
+      - source: code001
+        target: end001
+        id: code001-source-end001-target
+        data:
+          sourceType: code
+          targetType: end
+          isInIteration: false
+        sourceHandle: source
+        targetHandle: target
+        type: custom
+        zIndex: 0
+
+    nodes:
+      - data:
+          type: start
+          title: 開始
+          variables:
+            - type: paragraph
+              variable: input
+              label: ユーザー入力
+              required: true
+              max_length: 99999
+        id: start001
+      - data:
+          type: llm
+          title: 人名抽出LLM
+          model:
+            provider: openai
+            name: gpt-4o-mini
+            mode: chat
+            completion_params:
+              temperature: 0.3
+          prompt_template:
+            - role: system
+              text: '以下の文章から人名を抽出してください。抽出した人名は、カンマ区切りのリストとして出力してください。姓名は分けずに、一つの名前として扱ってください。文中に人名が含まれていない場合は、"該当なし"と出力してください。\n\n例：\n入力: "山田太郎さんと佐藤花子さんが公園で出会いました。"\n出力: 山田太郎,佐藤花子\n\n入力: "昨日は晴れでした。"\n出力: 該当なし\n\n以下の文章から人名を抽出してください：\n{#start001.input#}'
+          context:
+            enabled: true
+            variable_selector:
+              - start001
+              - input
+          vision:
+            enabled: false
+        id: llm001
+      - data:
+          type: code
+          title: 人名抽出コード
+          code_language: python3
+          code: "\ndef main(llm_output: str) -> dict:\n    names = llm_output.split(',')\n    cleaned_names = [name.strip() for name in names if name.strip()]\n    if cleaned_names:\n        result = ','.join(cleaned_names)\n    else:\n        result = '該当なし'\n    return {\n        \"result\": result\n    }\n"
+          outputs:
+            result:
+              type: string
+          variables:
+            - variable: llm_output
+              value_selector:
+                - llm001
+                - text
+        id: code001
+      - data:
+          type: end
+          title: 終了
+          outputs:
+            - value_selector:
+                - code001
+                - result
+              variable: extracted_names
+        id: end001

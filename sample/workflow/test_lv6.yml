@@ -1,0 +1,62 @@
+app:
+  mode: workflow
+  name: 文章要約ワークフロー
+  version: 0.1.5
+
+workflow:
+  graph:
+    edges:
+    - source: start1
+      target: llm1
+      data:
+        sourceType: start
+        targetType: llm
+      sourceHandle: source
+    - source: llm1
+      target: end1
+      data:
+        sourceType: llm
+        targetType: end
+      sourceHandle: source
+
+    nodes:
+    - data:
+        type: start
+        title: 開始
+        variables:
+          - type: paragraph
+            variable: input
+            label: input
+            required: true
+            max_length: 99999
+            options: []
+      id: start1
+    - data:
+        type: llm
+        title: 文章要約ノード
+        model:
+          provider: openai
+          name: gpt-4o-mini
+          mode: chat
+          completion_params:
+            temperature: 0.7
+        prompt_template:
+          - role: system
+            text: '{{#start1.input#}} この文章を要約してください。重要なポイントを簡潔にまとめ、全体の意味を損なわないようにしてください。'
+        context:
+          enabled: true
+          variable_selector:
+            - start1
+            - input
+        vision:
+          enabled: false
+      id: llm1
+    - data:
+        outputs:
+        - value_selector:
+          - llm1
+          - text
+          variable: text
+        type: end
+        title: 終了
+      id: end1

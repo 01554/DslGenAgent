@@ -1,0 +1,143 @@
+app:
+  mode: workflow
+  name: 改行区切りの文章を分割して各項目を検索するワークフロー
+  version: 0.1.5
+
+workflow:
+  graph:
+    edges:
+    - source: start001
+      target: code001
+      id: start001-source-code001-target
+      data:
+        sourceType: start
+        targetType: code
+        isInIteration: false
+      sourceHandle: source
+      targetHandle: target
+      type: custom
+      zIndex: 0
+    - source: code001
+      target: iteration001
+      id: code001-source-iteration001-target
+      data:
+        sourceType: code
+        targetType: iteration
+        isInIteration: false
+      sourceHandle: source
+      targetHandle: target
+      type: custom
+      zIndex: 0
+    - source: iteration001start
+      target: tool001
+      id: iteration001start-source-tool001-target
+      data:
+        sourceType: iteration-start
+        targetType: tool
+        isInIteration: true
+        iteration_id: iteration001
+      sourceHandle: source
+      targetHandle: target
+      type: custom
+      zIndex: 1002
+    - source: iteration001
+      target: end001
+      id: iteration001-source-end001-target
+      data:
+        sourceType: iteration
+        targetType: end
+        isInIteration: false
+      sourceHandle: source
+      targetHandle: target
+      type: custom
+      zIndex: 0
+
+    nodes:
+    - data:
+        type: start
+        title: 開始
+        variables:
+          - type: paragraph
+            variable: input
+            label: 入力
+            required: true
+            max_length: 99999
+      id: start001
+    - data:
+        type: code
+        title: 配列分割
+        code: "def main(input: str) -> dict:\n    # 入力文字列を改行で分割し、空の要素を除去\n    array = [item.strip() for item in input.split('\\n') if item.strip()]\n    return {\n        \"result\": array\n    }"
+        code_language: python3
+        variables:
+          - variable: input
+            value_selector:
+              - start001
+              - input
+        outputs:
+          result:
+            type: array[string]
+      id: code001
+    - data:
+        type: iteration
+        title: イテレーション
+        desc: イテレーションの結果をendノードに渡す
+        is_parallel: false
+        parallel_nums: 10
+        error_handle_mode: terminated
+        iterator_selector:
+          - code001
+          - result
+        output_selector:
+          - tool001
+          - text
+        output_type: array[string]
+        start_node_id: iteration001start
+      id: iteration001
+    - data:
+        type: iteration-start
+        title: イテレーション開始
+        desc: イテレーション内で各項目を検索キーとして検索を行う
+        isInIteration: true
+      parentId: iteration001
+      id: iteration001start
+      type: custom-iteration-start
+    - data:
+        type: tool
+        title: Tavily Search
+        desc: イテレーション内で各項目を検索キーとして検索を行う
+        isInIteration: true
+        provider_id: tavily
+        provider_name: tavily
+        provider_type: builtin
+        tool_configurations:
+          days: 365
+          exclude_domains: null
+          include_answer: 0
+          include_domains: null
+          include_image_descriptions: 0
+          include_images: 0
+          include_raw_content: 0
+          max_results: 20
+          search_depth: basic
+          topic: general
+        tool_label: Tavily Search
+        tool_name: tavily_search
+        tool_parameters:
+          query:
+            type: mixed
+            value: '{{#iteration001.item#}}'
+        outputs:
+          result:
+            type: string
+      parentId: iteration001
+      id: tool001
+    - data:
+        type: end
+        title: 終了
+        desc: イテレーションの結果を受け取り、ワークフローを終了する
+        outputs:
+          - variable: result
+            value_selector:
+              - iteration001
+              - output
+      id: end001

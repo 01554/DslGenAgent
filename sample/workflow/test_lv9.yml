@@ -1,0 +1,197 @@
+app:
+  mode: workflow
+  name: キーワード拡張検索と要約ワークフロー
+  version: 0.1.5
+
+workflow:
+  graph:
+    edges:
+    - source: start001
+      target: llm001
+      id: start001-source-llm001-target
+      data:
+        sourceType: start
+        targetType: llm
+        isInIteration: false
+      sourceHandle: source
+      targetHandle: target
+      type: custom
+      zIndex: 0
+    - source: llm001
+      target: code001
+      id: llm001-source-code001-target
+      data:
+        sourceType: llm
+        targetType: code
+        isInIteration: false
+      sourceHandle: source
+      targetHandle: target
+      type: custom
+      zIndex: 0
+    - source: code001
+      target: iteration001
+      id: code001-source-iteration001-target
+      data:
+        sourceType: code
+        targetType: iteration
+        isInIteration: false
+      sourceHandle: source
+      targetHandle: target
+      type: custom
+      zIndex: 0
+    - source: iteration001
+      target: tool001
+      id: iteration001-source-tool001-target
+      data:
+        sourceType: iteration
+        targetType: tool
+        isInIteration: true
+        iteration_id: iteration001
+      sourceHandle: source
+      targetHandle: target
+      type: custom
+      zIndex: 1002
+    - source: iteration001
+      target: llm002
+      id: iteration001-source-llm002-target
+      data:
+        sourceType: iteration
+        targetType: llm
+        isInIteration: false
+      sourceHandle: source
+      targetHandle: target
+      type: custom
+      zIndex: 0
+    - source: llm002
+      target: end001
+      id: llm002-source-end001-target
+      data:
+        sourceType: llm
+        targetType: end
+        isInIteration: false
+      sourceHandle: source
+      targetHandle: target
+      type: custom
+      zIndex: 0
+
+    nodes:
+    - data:
+        type: start
+        title: キーワード入力
+        variables:
+          - type: text-input
+            variable: keyword
+            label: キーワード
+            required: true
+            max_length: 100
+      id: start001
+    - data:
+        type: llm
+        title: 検索クエリ拡張
+        model:
+          provider: openai
+          name: gpt-4o-mini
+          mode: chat
+          completion_params:
+            temperature: 0.7
+        prompt_template:
+          - role: system
+            text: '以下のキーワードを元に、より詳細で効果的な検索クエリを生成してください。生成するクエリは、元のキーワードの意図を保ちつつ、関連する概念や同義語、より具体的な表現を含めて拡張してください。出力は1つの文字列として、カンマ区切りで複数のクエリを含めてください。例えば、入力が"AI"の場合、出力は"人工知能, 機械学習, ディープラーニング, ニューラルネットワーク, AI応用"のようになります。\n\n入力キーワード: {{#start001.keyword#}}\n\n出力形式: 拡張されたクエリ1, 拡張されたクエリ2, 拡張されたクエリ3, ...'
+        context:
+          enabled: true
+          variable_selector:
+            - start001
+            - keyword
+        vision:
+          enabled: false
+      id: llm001
+    - data:
+        type: code
+        title: 検索クエリを配列に変換
+        code_language: python3
+        code: "\ndef main(llm_output: str) -> dict:\n    queries = [query.strip() for query in llm_output.split(',')]\n    return {\n        \"result\": queries\n    }\n"
+        outputs:
+          result:
+            type: array[string]
+        variables:
+          - value_selector:
+            - llm001
+            - source
+            variable: llm_output
+      id: code001
+    - data:
+        type: iteration
+        title: 検索クエリイテレーション
+        desc: 各検索クエリに対して検索を実行し、結果を収集
+        iterator_selector:
+          - code001
+          - result
+        output_selector:
+          - tool001
+          - text
+        output_type: array[string]
+        error_handle_mode: terminated
+        is_parallel: false
+        parallel_nums: 10
+      id: iteration001
+    - data:
+        type: tool
+        title: Tavily Search
+        tool_name: tavily_search
+        provider_id: tavily
+        provider_name: tavily
+        provider_type: builtin
+        tool_label: Tavily Search
+        desc: イテレーション内で各検索クエリを使って検索を実行
+        tool_configurations:
+          days: 365
+          exclude_domains: null
+          include_answer: 0
+          include_domains: null
+          include_image_descriptions: 0
+          include_images: 0
+          include_raw_content: 0
+          max_results: 20
+          search_depth: basic
+          topic: general
+        tool_parameters:
+          query:
+            type: mixed
+            value: '{{#iteration001.item#}}'
+        outputs:
+          result:
+            type: string
+        output_handle:
+          code: "\ndef handle_output(output):\n    return output.get('text', '')\n"
+        isInIteration: true
+      parentId: iteration001
+      id: tool001
+    - data:
+        type: llm
+        title: 検索結果の要約
+        model:
+          provider: openai
+          name: gpt-4o-mini
+          mode: chat
+          completion_params:
+            temperature: 0.3
+        prompt_template:
+          - role: system
+            text: '以下は複数の検索クエリに基づいて収集された情報です。これらの情報を統合し、簡潔で包括的な要約を作成してください。要約は以下の点に注意して作成してください：\n\n1. 元のキーワードに関連する主要な情報を含める\n2. 異なる検索結果から得られた情報を統合し、一貫性のある内容にする\n3. 重要な事実、定義、概念を優先的に含める\n4. 冗長な情報は省略し、核心を捉えた内容にする\n5. 専門用語がある場合は、簡単な説明を加える\n6. 要約は3〜5段落程度にまとめる\n\n検索結果：\n{{#iteration001.output#}}\n\n上記の情報を元に、包括的で簡潔な要約を作成してください。'
+        context:
+          enabled: true
+          variable_selector:
+            - iteration001
+            - output
+        vision:
+          enabled: false
+      id: llm002
+    - data:
+        type: end
+        title: 要約結果出力
+        outputs:
+          - value_selector:
+              - llm002
+              - source
+            variable: summary
+      id: end001

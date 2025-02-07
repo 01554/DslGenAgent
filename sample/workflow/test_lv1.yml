@@ -1,0 +1,41 @@
+app:
+  mode: workflow
+  name: ユーザー入力をそのまま出力するワークフロー
+  version: 0.1.5
+
+workflow:
+  graph:
+    edges:
+    - source: start001
+      target: end001
+      id: start001-source-end001-target
+      data:
+        sourceType: start
+        targetType: end
+        isInIteration: false
+      sourceHandle: source
+      targetHandle: target
+      type: custom
+      zIndex: 0
+
+    nodes:
+    - data:
+        type: start
+        title: 開始
+        variables:
+          - type: paragraph
+            variable: input
+            label: ユーザー入力
+            required: true
+            max_length: 99999
+      id: start001
+
+    - data:
+        outputs:
+        - value_selector:
+          - start001
+          - input
+          variable: text
+        type: end
+        title: 終了
+      id: end001

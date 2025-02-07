@@ -1,0 +1,111 @@
+app:
+  mode: workflow
+  name: 質問判別と適切な応答生成ワークフロー
+  version: 0.1.5
+
+workflow:
+  graph:
+    edges:
+    - source: start_node
+      target: question_classifier_node
+      data:
+        sourceType: start
+        targetType: question_classifier
+      sourceHandle: source
+    - source: question_classifier_node
+      target: llm_node_question
+      data:
+        sourceType: question_classifier
+        targetType: llm
+      sourceHandle: '1'
+    - source: question_classifier_node
+      target: llm_node_statement
+      data:
+        sourceType: question_classifier
+        targetType: llm
+      sourceHandle: '2'
+    - source: llm_node_question
+      target: end_node
+      data:
+        sourceType: llm
+        targetType: end
+      sourceHandle: source
+    - source: llm_node_statement
+      target: end_node
+      data:
+        sourceType: llm
+        targetType: end
+      sourceHandle: source
+    nodes:
+    - id: start_node
+      data:
+        type: start
+        title: 開始
+        variables:
+          - type: paragraph
+            variable: user_input
+            label: ユーザーの質問
+            required: true
+            max_length: 1000
+    - id: question_classifier_node
+      data:
+        type: question-classifier
+        title: 質問分類器
+        classes:
+          - id: '1'
+            name: 質問
+          - id: '2'
+            name: 質問以外
+        model:
+          provider: openai
+          name: gpt-4o-mini
+          mode: chat
+          completion_params:
+            temperature: 0.7
+        query_variable_selector:
+          - start_node
+          - user_input
+        vision:
+          enabled: false
+    - id: llm_node_question
+      data:
+        type: llm
+        title: 質問処理LLM
+        model:
+          provider: openai
+          name: gpt-4o-mini
+          mode: chat
+          completion_params:
+            temperature: 0.7
+        prompt_template:
+          - id: 65c46dbe-98b4-4a3f-aafb-16f668d4ee86
+            role: system
+            text: '以下のユーザー入力は質問であると判断されました。この入力に対して、「これは質問です」という回答を生成してください。ただし、単に「これは質問です」と返すだけでなく、以下の要素を含めた丁寧な応答を作成してください：
+
+            1. ユーザーの質問を受け取ったことの確認
+            2. 「これは質問です」という判断の明確な伝達
+            3. ユーザーの質問に対する理解や共感を示す文言
+            4. 必要に応じて、さらなる情報や具体的な回答が必要な場合はその旨を伝える
+
+            ユーザー入力: {{#question_classifier_node.user_input#}}'
+        context:
+          enabled: true
+          variable_selector:
+            - question_classifier_node
+            - user_input
+        vision:
+          enabled: false
+    - id: llm_node_statement
+      data:
+        type: llm
+        title: 質問以外の処理LLM
+        model:
+          provider: openai
+          name: gpt-4o-mini
+          mode: chat
+          completion_params:
+            temperature: 0.7
+        prompt_template:
+          - id: 65c46dbe-98b4-4a3f-aafb-16f668d4ee86
+            role: system
+            text: '以下のユーザー入力は質問ではないと判断されました。この入力に対して、適切な応答を生成してください。以下の要素を

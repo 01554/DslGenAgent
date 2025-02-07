@@ -1,0 +1,66 @@
+app:
+  mode: workflow
+  name: [ワークフローの名前]
+  version: 0.1.5
+
+workflow:
+  graph:
+    edges:
+    - source: start1234567890123456
+      target: llm1234567890123456
+      data:
+        sourceType: start
+        targetType: llm
+      sourceHandle: source
+    - source: llm1234567890123456
+      target: end1234567890123456
+      data:
+        sourceType: llm
+        targetType: end
+      sourceHandle: source
+
+    nodes:
+    - data:
+        type: start
+        title: 開始
+        desc: ''
+        variables:
+        - label: input
+          max_length: 99999
+          options: []
+          required: true
+          type: paragraph
+          variable: input
+      id: start1234567890123456
+
+    - data:
+        type: llm
+        title: LLM
+        model:
+          provider: openai
+          name: gpt-4o-mini
+          mode: chat
+          completion_params:
+            temperature: 0.7
+        prompt_template:
+        - id: 65c46dbe-98b4-4a3f-aafb-16f668d4ee86
+          role: system
+          text: '{{#start1234567890123456.input#}} ユーザーからの入力を受け取り、全角スペースを半角スペースに置き換えて出力してください。'
+        context:
+          enabled: true
+          variable_selector:
+          - start1234567890123456
+          - input
+        vision:
+          enabled: false
+      id: llm1234567890123456
+
+    - data:
+        outputs:
+        - value_selector:
+          - llm1234567890123456
+          - text
+          variable: generatedText
+        type: end
+        title: 終了
+      id: end1234567890123456

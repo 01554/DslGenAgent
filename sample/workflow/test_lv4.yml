@@ -1,0 +1,81 @@
+app:
+  mode: workflow
+  name: 敬体判定ワークフロー
+  version: 0.1.5
+
+workflow:
+  graph:
+    edges:
+    - source: start1
+      target: question_classifier1
+      data:
+        sourceType: start
+        targetType: question-classifier
+      sourceHandle: source
+    - source: question_classifier1
+      target: end1
+      data:
+        sourceType: question-classifier
+        targetType: end
+      sourceHandle: '1'
+    - source: question_classifier1
+      target: end2
+      data:
+        sourceType: question-classifier
+        targetType: end
+      sourceHandle: '2'
+    nodes:
+    - data:
+        type: start
+        title: 開始
+        desc: ユーザーからの入力を受け取り、question_classifierノードに渡す
+        variables:
+        - label: input
+          type: paragraph
+          variable: input
+          max_length: 99999
+          required: true
+          options: []
+      id: start1
+    - data:
+        type: question-classifier
+        title: 質問分類器
+        desc: 入力された文章が敬体か常体かを判定する
+        classes:
+        - id: '1'
+          name: 敬体
+        - id: '2'
+          name: 常体
+        model:
+          completion_params:
+            temperature: 0.7
+          mode: chat
+          name: gpt-4o-mini
+          provider: openai
+        query_variable_selector:
+        - start1
+        - input_text
+        selected: false
+        vision:
+          enabled: false
+      id: question_classifier1
+    - data:
+        type: end
+        title: 終了
+        desc: 敬体であると判定された場合、'敬体です'と出力する
+        outputs:
+        - value_selector:
+          - question_classifier1
+          - class_name
+          variable: text
+      id: end1
+    - data:
+        type: end
+        title: 終了
+        desc: 常体であると判定された場合、'常体です'と出力する
+        outputs:
+        - value_selector:
+          - question_classifier1
+          - class_name
+          variable: text
+      id: end2
