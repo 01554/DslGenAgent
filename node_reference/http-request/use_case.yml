@@ -1,0 +1,12 @@
+  <use_case>
+  - HTTPリクエストを行う
+  - 認証が必要な場合は bearerのみ利用可能、それ以外の認証が場合はこのノードでは処理ができない
+  - URLを操作する場合は https://{{#node_id.variable_name}} として埋め込み構文を使う
+    - URLの操作はこのノードで行う、他のノードでは変数のみ引き渡す
+    - https:// の部分を他の場所で補うとエラーになる、必ず
+    https://{{#node_id.variable_name}} や     https://examole.com/?{{#node_id.variable_name}} のように埋め込み構文を使う
+
+  - このノードの出力は body status headers filesの4つ
+  - GET POST のどちらも利用可能
+
+  </use_case>

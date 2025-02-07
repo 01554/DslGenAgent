@@ -1,0 +1,223 @@
+app:
+  mode: workflow
+  name: レビューカテゴリ分類と回答生成ワークフロー
+  version: 0.1.5
+
+workflow:
+  graph:
+    edges:
+    - source: start001
+      target: classifier001
+      id: start001-source-classifier001-target
+      data:
+        sourceType: start
+        targetType: question-classifier
+        isInIteration: false
+      sourceHandle: source
+      targetHandle: target
+      type: custom
+      zIndex: 0
+    - source: classifier001
+      target: llm001
+      id: classifier001-source-llm001-target
+      data:
+        sourceType: question-classifier
+        targetType: llm
+        isInIteration: false
+      sourceHandle: "1"
+      targetHandle: target
+      type: custom
+      zIndex: 0
+    - source: classifier001
+      target: llm002
+      id: classifier001-source-llm002-target
+      data:
+        sourceType: question-classifier
+        targetType: llm
+        isInIteration: false
+      sourceHandle: "2"
+      targetHandle: target
+      type: custom
+      zIndex: 0
+    - source: classifier001
+      target: llm003
+      id: classifier001-source-llm003-target
+      data:
+        sourceType: question-classifier
+        targetType: llm
+        isInIteration: false
+      sourceHandle: "3"
+      targetHandle: target
+      type: custom
+      zIndex: 0
+    - source: llm001
+      target: code001
+      id: llm001-source-code001-target
+      data:
+        sourceType: llm
+        targetType: code
+        isInIteration: false
+      sourceHandle: source
+      targetHandle: target
+      type: custom
+      zIndex: 0
+    - source: llm002
+      target: code001
+      id: llm002-source-code001-target
+      data:
+        sourceType: llm
+        targetType: code
+        isInIteration: false
+      sourceHandle: source
+      targetHandle: target
+      type: custom
+      zIndex: 0
+    - source: llm003
+      target: code001
+      id: llm003-source-code001-target
+      data:
+        sourceType: llm
+        targetType: code
+        isInIteration: false
+      sourceHandle: source
+      targetHandle: target
+      type: custom
+      zIndex: 0
+    - source: code001
+      target: end001
+      id: code001-source-end001-target
+      data:
+        sourceType: code
+        targetType: end
+        isInIteration: false
+      sourceHandle: source
+      targetHandle: target
+      type: custom
+      zIndex: 0
+
+    nodes:
+    - data:
+        type: start
+        title: レビュー入力
+        variables:
+          - type: paragraph
+            variable: user_review
+            label: ユーザーレビュー
+            required: true
+            max_length: 1000
+      id: start001
+    - data:
+        type: question-classifier
+        title: レビューカテゴリ分類
+        classes:
+          - id: '1'
+            name: 製品の品質に関するレビュー
+          - id: '2'
+            name: サービスの対応に関するレビュー
+          - id: '3'
+            name: その他のレビュー
+        model:
+          provider: openai
+          name: gpt-4o-mini
+          mode: chat
+          completion_params:
+            temperature: 0.3
+        query_variable_selector:
+          - start001
+          - user_review
+        vision:
+          enabled: false
+      id: classifier001
+    - data:
+        type: llm
+        title: 製品品質レビュー回答生成
+        model:
+          provider: openai
+          name: gpt-4o-mini
+          mode: chat
+          completion_params:
+            temperature: 0.7
+        prompt_template:
+          - role: system
+            text: '以下は製品の品質に関するユーザーレビューです。このレビューに対して、以下の点に注意して適切な回答を生成してください：\n\n1. ユーザーの感想や意見に共感を示す\n2. 製品の品質に関する具体的なフィードバックに対して謝意を表す\n3. 品質向上のための取り組みや改善策について言及する\n4. 必要に応じて、製品の正しい使用方法や注意点を説明する\n5. ユーザーの継続的なサポートを約束し、今後のフィードバックも歓迎する姿勢を示す\n\nユーザーレビュー：\n{{#start001.user_review#}}\n\n上記のガイドラインに従って、丁寧かつ建設的な回答を生成してください。'
+        context:
+          enabled: true
+          variable_selector:
+            - start001
+            - user_review
+        vision:
+          enabled: false
+      id: llm001
+    - data:
+        type: llm
+        title: サービス対応レビュー回答生成
+        model:
+          provider: openai
+          name: gpt-4o-mini
+          mode: chat
+          completion_params:
+            temperature: 0.7
+        prompt_template:
+          - role: system
+            text: 'あなたは顧客サービス担当者です。以下はサービスの対応に関するユーザーレビューです。このレビューに対して、以下の点に注意して適切な回答を生成してください：\n\n1. ユーザーの体験に対して深い理解と共感を示す\n2. サービス対応に関する具体的なフィードバックに対して謝意を表す\n3. 指摘された問題点について、改善のための具体的な行動計画や対策を説明する\n4. 可能であれば、問題解決のための即時的な対応策を提案する\n5. 今後のサービス品質向上への決意を表明し、継続的なフィードバックを歓迎する姿勢を示す\n6. 必要に応じて、追加のサポートや補償の可能性について言及する\n\nユーザーレビュー：\n{{#start001.user_review#}}\n\n上記のガイドラインに従って、誠実かつ建設的な回答を生成してください。ユーザーの信頼回復と満足度向上を最優先に考えてください。'
+        context:
+          enabled: true
+          variable_selector:
+            - start001
+            - user_review
+        vision:
+          enabled: false
+      id: llm002
+    - data:
+        type: llm
+        title: その他のレビュー回答生成
+        model:
+          provider: openai
+          name: gpt-4o-mini
+          mode: chat
+          completion_params:
+            temperature: 0.7
+        prompt_template:
+          - role: system
+            text: 'あなたは顧客サポート担当者です。以下はカテゴリ分類で「その他」に分類されたユーザーレビューです。このレビューに対して、適切かつ丁寧な回答を生成してください。以下の点に注意してください：\n\n1. レビューの内容を注意深く分析し、ユーザーの主な関心事や問題点を特定する\n2. ユーザーの感想や意見に対して共感を示し、真摯に受け止める姿勢を表現する\n3. レビューの内容に応じて、製品やサービスの関連する側面について説明や情報提供を行う\n4. 具体的なフィードバックがある場合は、それに対する改善策や対応方針を説明する\n5. ユーザーの満足度向上のために、追加のサポートや情報提供の機会があればそれを提案する\n6. 今後のサービス向上への決意を表明し、継続的なフィードバックを歓迎する姿勢を示す\n\nユーザーレビュー：\n{{#start001.user_review#}}\n\n上記のガイドラインに従って、個別の状況に応じた適切で丁寧な回答を生成してください。ユーザーの信頼を獲得し、ポジティブな印象を残すことを目指してください。'
+        context:
+          enabled: true
+          variable_selector:
+            - start001
+            - user_review
+        vision:
+          enabled: false
+      id: llm003
+    - data:
+        type: code
+        title: 最終結果の生成
+        code: "\ndef main(llm001_text: str, llm002_text: str, llm003_text: str) -> dict:\n    final_result = f\"カテゴリ1の回答：\\n{llm001_text}\\n\\nカテゴリ2の回答：\\n{llm002_text}\\n\\nカテゴリ3の回答：\\n{llm003_text}\"\n    return {\n        \"result\": final_result\n    }\n"
+        code_language: python3
+        desc: '3つのLLMノードからの回答を結合し、最終的な結果を生成します。'
+        outputs:
+          result:
+            type: string
+        variables:
+          - value_selector:
+              - llm001
+              - text
+            variable: llm001_text
+          - value_selector:
+              - llm002
+              - text
+            variable: llm002_text
+          - value_selector:
+              - llm003
+              - text
+            variable: llm003_text
+      id: code001
+    - data:
+        type: end
+        title: レビュー回答出力
+        outputs:
+          - value_selector:
+              - code001
+              - result
+            variable: final_result
+        desc: '最終的なレビュー回答結果を出力します。'
+      id: end001

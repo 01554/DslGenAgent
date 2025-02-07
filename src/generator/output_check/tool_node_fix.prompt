@@ -1,22 +1,11 @@
-        # 作業指示 1
-        - type: tool_* はエッジの設定を type: tool になるように修正する
-        例1: targetType: tool_article_node の場合は エッジの設定は targetType: tool になるよう変換する
-            sourceType: tool_title_node の場合は エッジの設定は sourceType: tool になるよう変換する
-        例2: type: tool_google_search の場合は エッジの設定は type: tool になるよう変換する
-             type: code の場合は toolが頭にないためそのまま code にする
-        例3： targetType: end の場合は toolが頭にないためそのまま end にする
-             sourceType: start の場合は toolが頭にないためそのまま start にする
-             targetType: code の場合は toolが頭にないためそのまま code にする
-             sourceType: iteration の場合は toolが頭にないためそのまま iteration にする
-             sourceType: iteration-start の場合は toolが頭にないためそのまま iteration-start にする
         
-        # 作業指示 2
-        - tool_* は ノードの出力が "text","image","link","blob","json","image_link","file"のいずれかになる、output_selectorとinput_selectorでtool系と接続して入出力をする場合は、変数名をこのうちのどれかにする
+        # 作業指示
+        - tool は ノードの出力が "text","image","link","blob","json","image_link","file"のいずれかになる、output_selectorとinput_selectorでtool系と接続して入出力をする場合は、変数名をこのうちのどれかにする
         - toolの機能を考えて、もっとも適したものを設定する、適したものが不明な場合はtextにする
         例:
             - tool_google_search の場合は  text にする
             - tool_generate_image の場合は  image にする
-        ## 作業指示2の具体例
+        ## 具体例
         NG例:
             output_selector:
             - tool001
@@ -38,11 +27,6 @@
         {yaml}
 
         ## 作業上の注意
-        本来変換しないものまでtoolに修正した場合、あなたの会社に損害請求をします、注意して作業してください、あなたの作業は地球の未来を決めます
-        出力前によく作業前と作業後のymlを比較してやり直すべきと判断したらやり直してください
         完成したymlのみ出力してください、
-
-        ## 作業手順
-        作業対象データの中から sourceType と targetType と type の設定されている行を確認する
-        その行の 設定値が tool_ で始まる場合は type を tool に変換する
-        その行の 設定値が tool_で始まらない場合はそのままにする
+        修正の必要がない場合は、修正前の作業対象データのymlを出力してください
+        

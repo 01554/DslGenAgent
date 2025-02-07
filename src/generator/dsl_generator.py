@@ -4,9 +4,22 @@ from langchain_core.prompts import ChatPromptTemplate
 from langchain_core.output_parsers import StrOutputParser
 
 import os
+import re
+
 class DSLGenerator:
     def __init__(self, llm:ChatOpenAI):
         self.llm = llm
+
+
+    def convert_tool_type(self, input_string:str) -> str:
+        # tool_ で始まる値を tool に置換するパターン
+        pattern = r'(type|sourceType|targetType):\s*tool_\w+'
+        replacement = r'\1: tool'
+        
+        # 正規表現による置換を実行
+        result = re.sub(pattern, replacement, input_string)
+        return result
+    
     def extract_yaml_content(self, yml_content: str) -> str:
         return self._extract_yaml_content(yml_content, "app:", "```")
 
@@ -215,8 +228,9 @@ class DSLGenerator:
         )
         chain = prompt | self.llm | StrOutputParser()
         result = chain.invoke({"user_request": user_request, "edges": edges, "nodes": nodes, "end_node_reference": end_node_reference})
-        result = self.output_check(result)
+        result = self.convert_tool_type(result) # tool_ で始まる値を tool に置換する
 
+        result = self.output_check(result)
         result = self.extract_yaml_content(result)
         
 

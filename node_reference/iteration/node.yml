@@ -1,3 +1,4 @@
+  <output_ref>
     nodes:
     - data:
         selected: false
@@ -99,3 +100,25 @@
           variable: item
       id: 'code012'
       parentId: 'iteration001'
+  </output_ref>
+        <structure>
+
+        - iterator_selector: イテレーション内で処理するデータ、先行ノードから引き渡される時にArray形式で渡されることが前提、必須
+          - '[node_id]'  
+          - [変数名]
+        output_selector: イテレーションが終わった後の後続ノードに引き渡す変数の特定、必須
+        - '[node_id]' # イテレーションの内部で使われる最後のnode_id
+        - [output変数] # イテレーションの内部で使われる最後のnodeの出力変数、codeであればresult、検索であればtextなどそれぞれ違うので最後のノードを確認して埋める
+        output_type: array[string] array[int] など中身が指定される、わからない場合は array[string] としておけば大丈夫
+        parallel_nums: 並列実行数、10がマックス、
+        start_node_id: ユニークなID（必須
+        title: イテレーション
+        type: iteration
+
+        </structure>
+        <note>
+          - 後続ノードは、イテレーションのoutput_selectorを使わなければならない
+            - 子ノードのoutputをそのまま後続で利用することはできない、一度イテレーションのoutput_selectorを使って変数を特定しないといけない
+          
+        </note>
+      </end_node>

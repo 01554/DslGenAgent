@@ -43,3 +43,29 @@ workflow:
           - arg2
           variable: arg2
       id: '1738055175340'
+
+<structure>
+        code: 必須、文字列で表記、プログラムコード内での改行は \n を使って表現する、
+          出力は return {\n  result\": str(paraeter)\n    }\n" となり、dict keyはresultひとつで固定、よってcodeの出力は 実質は文字列、もしくは 文字列の配列のみとなる
+        code_language: python3 で固定　必須
+        desc: ''
+        outputs: 必須
+          result: 必須、result で固定
+            children: null
+            type: 必須 string, array[string]のいずれかを設定
+        title: コード
+        type: code 必須 codeで固定
+        variables: プログラム内で使う引数を指定、先行ノードの出力を引数として使う 任意
+        - value_selector:
+          - '1738055172177' # 先行ノードのID
+          - arg1 # 先行ノードの出力変数名   
+          variable: arg1 # プログラム内で使う引数名
+        - value_selector:
+          - '1738055172177' # 先行ノードのID
+          - arg2 # 先行ノードの出力変数名
+          variable: arg2
+      id:  # codeノードのID,必須、ユニークであること
+</structure>
+<note>
+URLを生成する場合、http:// や https:// のプロトコル指定部分は生成してはいけない
+</note>

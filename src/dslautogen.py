@@ -77,6 +77,13 @@ def get_relation_edges(source_edge:Edge, workflowplan:WorkflowPlan) -> list[Edge
     relation_edges = [e for e in workflowplan.edges if e.target_node_id == source_node_id or e.source_node_id == source_node_id]
     return relation_edges
 
+def get_previous_edge(source_node_id:str, workflowplan:WorkflowPlan) -> list[Edge]:
+    # source_node_id の ノードIDから、そのノードに接続されているエッジを取得
+    previous_edges = [e for e in workflowplan.edges if e.target_node_id == source_node_id]
+    if len(previous_edges) == 0:
+        return None
+    
+    return previous_edges[-1]
 
 def main(user_request:str="テキストを受け取り（上限10000文字）、そのテキストから俳句を生成する", output_path:str="dsl.yml"):
 
@@ -115,7 +122,10 @@ def main(user_request:str="テキストを受け取り（上限10000文字）、
         src_node_id = edge.source_node_id
         src_description = edge.description
 
-        node = node_generator.generate_node(src_node_type,src_node_id,src_description,get_relation_edges(edge, workflowplan),nodes)
+        previous_edge = get_previous_edge(src_node_id, workflowplan)
+        
+
+        node = node_generator.generate_node(src_node_type,src_node_id,src_description,get_relation_edges(edge, workflowplan),previous_edge,nodes)
         if node:
             nodes.append(node)
             source_node_ids.append(src_node_id)
@@ -123,11 +133,13 @@ def main(user_request:str="テキストを受け取り（上限10000文字）、
             print(f"ノード生成に失敗しました。エッジ: {edge}")
             # TODO: ここでワークフロー生成からやりなおす
 
+    # target にしかいないエッジがあるのでそれも処理
     for edge in workflowplan.edges:
         if edge.target_node_id not in source_node_ids:
             target_node_type = edge.target_node_type.value
             target_node_id = edge.target_node_id
-            node = node_generator.generate_node(target_node_type,target_node_id,"",get_relation_edges(edge, workflowplan),nodes)
+            previous_edge = get_previous_edge(target_node_id, workflowplan)
+            node = node_generator.generate_node(target_node_type,target_node_id,"",get_relation_edges(edge, workflowplan),previous_edge,nodes)
             if node:
                 nodes.append(node)
     

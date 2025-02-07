@@ -1,0 +1,22 @@
+
+workflow:
+  graph:
+    edges:
+    - data:
+        isInIteration: false
+        sourceType: start
+        targetType: http-request
+      id: start001-source-httprequest001-target
+      source: 'start001'
+      sourceHandle: source
+      target: 'httprequest001'
+      targetHandle: target
+    - data:
+        isInIteration: false
+        sourceType: http-request
+        targetType: end
+      id: httprequest001-source-1738897192611-target
+      source: 'httprequest001'
+      sourceHandle: source
+      target: '1738897192611'
+      targetHandle: target

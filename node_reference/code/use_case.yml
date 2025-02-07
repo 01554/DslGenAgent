@@ -1,5 +1,9 @@
   <use_case>
   - 他のノードの変数をコードノードで使用する必要がある場合は、入力変数で変数名を定義し、これらの変数を参照する必要があります。
+  - requestsを使う場合はhttp-requestノードを使う
+    - http-requestノードを使う時、URLのプロトコル部分の操作をこのノードで行ってはいけない
+      - codeノードでURL操作する場合はドメイン以下のみ生成する
+      - http-requestノードは "https://"" 部分を自力で指定しないとエラーになるため、codeノードのような他のノードでhttpの部分を作ってはならない
   - 変数はnodeにvariablesで指定される
     - variablesの数は不定、1個でも10個でも設定はできる
     - variablesの値はArray,String,Intなど、元のNodeで設定されるためPython側で指定はできない

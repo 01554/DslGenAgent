@@ -1,0 +1,6 @@
+出力変数は必ずresultになる。resultの中身は
+string
+number
+array[string]
+array[number]
+のいずれかになる。

@@ -1,0 +1,91 @@
+<http_request_node>
+  <output_ref>
+workflow:
+  graph:
+    nodes:
+    - data:
+        desc: ''
+        selected: false
+        title: 開始
+        type: start
+        variables: []
+      id: 'start001'
+    - data:
+        authorization:
+          config:
+            api_key: ''
+            type: bearer
+          type: no-auth
+        body:
+          data: []
+          type: none
+        desc: ''
+        headers: ''
+        method: get
+        params: ''
+        retry_config:
+          max_retries: 3
+          retry_enabled: true
+          retry_interval: 100
+        selected: false
+        timeout:
+          max_connect_timeout: 0
+          max_read_timeout: 0
+          max_write_timeout: 0
+        title: HTTPリクエスト
+        type: http-request
+        url: https://example.com?{{#start001.query#}}
+        variables: []
+      id: 'httprequest001'
+    - data:
+        desc: ''
+        outputs:
+        - value_selector:
+          - 'httprequest001'
+          - body
+          variable: body
+        selected: false
+        title: 終了
+        type: end
+      id: 'end001'
+  </output_ref>
+        <structure>
+        authorization:
+          config: # no-auth の場合でも指定必須
+            api_key: ''
+            type: bearer 選択可能なauthorizationは bearerのみ、
+          type: no-auth もしくは api-key
+        body: # 必須
+          data: []
+          type: none
+        desc: '' # 必須
+        headers: '' # 必須
+        method: get もしくは post # 必須
+        params: ''  postの場合はこちらにパラメータを記載、ない場合は空白を指定 必須
+        retry_config: 必須
+          max_retries: 3 で固定
+          retry_enabled: true で固定
+          retry_interval: 100 で固定
+        timeout:
+          max_connect_timeout: 0 で固定
+          max_read_timeout: 0 で固定
+          max_write_timeout: 0 で固定
+        title: このノードの概要を日本語で説明
+        type: http-request で固定
+        url: "https://{{#node_id.variable_name#}}" https://の部分がこのノードでの指定必須、引数はURLの中に埋め込む形で  https://example.com/?{{#node_id.variable_name#}} 構文を使う 
+        variables: []
+      id: 必須、ユニークなID
+
+    </structure>
+    <note>
+    - 出力は body status headers filesの4つ
+    - 認証が必要な場合は bearerのみ利用可能、それ以外の認証が場合はこのノードでは処理ができない
+    - URLを操作する場合は https://{{#node_id.variable_name#}} として埋め込み構文を使う
+      - URLの操作はこのノードで行う、他のノードでは変数のみ引き渡す
+      - https:// の部分を他のノードで補うとエラーになる、必ず
+      https://{{#node_id.variable_name#}} や     https://example.com/?{{#node_id.variable_name#}} のように埋め込み構文を使う
+    - 前段部分のノードで処理しないように注意
+
+
+    </note>
+</http_request_node>

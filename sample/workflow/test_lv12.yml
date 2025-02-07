@@ -1,0 +1,187 @@
+app:
+  mode: workflow
+  name: 地方名や国名から天気情報を取得して日本語でまとめるワークフロー
+  version: 0.1.5
+
+workflow:
+  graph:
+    edges:
+    - source: start001
+      target: code001
+      id: start001-source-code001-target
+      data:
+        sourceType: start
+        targetType: code
+        isInIteration: false
+      sourceHandle: source
+      targetHandle: target
+      type: custom
+      zIndex: 0
+    - source: code001
+      target: http001
+      id: code001-source-http001-target
+      data:
+        sourceType: code
+        targetType: http-request
+        isInIteration: false
+      sourceHandle: source
+      targetHandle: target
+      type: custom
+      zIndex: 0
+    - source: http001
+      target: code002
+      id: http001-source-code002-target
+      data:
+        sourceType: http-request
+        targetType: code
+        isInIteration: false
+      sourceHandle: source
+      targetHandle: target
+      type: custom
+      zIndex: 0
+    - source: code002
+      target: llm001
+      id: code002-source-llm001-target
+      data:
+        sourceType: code
+        targetType: llm
+        isInIteration: false
+      sourceHandle: source
+      targetHandle: target
+      type: custom
+      zIndex: 0
+    - source: llm001
+      target: end001
+      id: llm001-source-end001-target
+      data:
+        sourceType: llm
+        targetType: end
+        isInIteration: false
+      sourceHandle: source
+      targetHandle: target
+      type: custom
+      zIndex: 0
+
+    nodes:
+    - data:
+        type: start
+        title: 開始
+        variables:
+          - type: text-input
+            variable: region
+            label: 地方名
+            required: true
+            max_length: 100
+          - type: text-input
+            variable: country
+            label: 国名
+            required: true
+            max_length: 100
+          - type: text-input
+            variable: api_key
+            label: API_KEY
+            required: true
+            max_length: 100
+      id: start001
+
+    - data:
+        type: code
+        title: OpenWeatherMap API URL生成
+        code: "\ndef main(region: str, country: str, api_key: str) -> dict:\n    base_url = 'api.openweathermap.org/data/2.5/weather'\n    query = f'q={region},{country}&appid={api_key}'\n    full_url = f'{base_url}?{query}'\n    return {\n        'result': full_url\n    }\n"
+        code_language: python3
+        desc: 'OpenWeatherMap APIのURLを生成する'
+        outputs:
+          result:
+            children: null
+            type: string
+        variables:
+          - value_selector:
+            - 'start001'
+            - region
+            variable: region
+          - value_selector:
+            - 'start001'
+            - country
+            variable: country
+          - value_selector:
+            - 'start001'
+            - api_key
+            variable: api_key
+      id: code001
+
+    - data:
+        type: http-request
+        title: OpenWeatherMap APIから天気情報を取得
+        authorization:
+          config:
+            api_key: ''
+            type: bearer
+          type: no-auth
+        body:
+          data: []
+          type: none
+        desc: 'OpenWeatherMap APIから天気情報を取得する'
+        headers: ''
+        method: get
+        params: ''
+        retry_config:
+          max_retries: 3
+          retry_enabled: true
+          retry_interval: 100
+        timeout:
+          max_connect_timeout: 0
+          max_read_timeout: 0
+          max_write_timeout: 0
+        url: "https://{{#code001.result#}}"
+        variables: []
+      id: http001
+
+    - data:
+        type: code
+        title: 天気情報をJSONからPythonオブジェクトに変換
+        code: "\ndef main(body: str) -> dict:\n    import json\n    weather_data = json.loads(body)\n    return {\n        'result': json.dumps(weather_data, ensure_ascii=False)\n    }\n"
+        code_language: python3
+        desc: '取得した天気情報をJSONからPythonオブジェクトに変換する'
+        outputs:
+          result:
+            children: null
+            type: string
+        variables:
+          - value_selector:
+            - 'http001'
+            - body
+            variable: body
+      id: code002
+
+    - data:
+        type: llm
+        title: 天気情報を日本語でまとめる
+        model:
+          provider: openai
+          name: gpt-4o-mini
+          mode: chat
+          completion_params:
+            temperature: 0.7
+        prompt_template:
+          - role: system
+            text: '以下の天気情報JSONデータを解析し、日本語で簡潔かつ分かりやすくまとめてください。気温は摂氏で表示し、風速はm/sで表示してください。天気の状態、気温、湿度、風速、気圧などの主要な情報を含めてください。また、その日の天気に基づいて、適切な服装や外出時の注意点などのアドバイスも追加してください。\n\n天気情報JSON: {{#code002.result#}}\n\n出力形式:\n[地域名]の天気:\n- 天気の状態\n- 気温\n- 湿度\n- 風速\n- 気圧\n- その他の注目すべき情報\n\nアドバイス:\n- 服装について\n- 外出時の注意点'
+        context:
+          enabled: true
+          variable_selector:
+            - 'code002'
+            - result
+        vision:
+          enabled: false
+      id: llm001
+
+    - data:
+        type: end
+        title: 終了
+        desc: '天気情報を日本語でまとめた結果を出力'
+        outputs:
+          - value_selector:
+            - 'llm001'
+            - text
+            variable: weather_summary
+        selected: true
+      id: end001
