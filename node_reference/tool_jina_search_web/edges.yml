@@ -1,0 +1,21 @@
+workflow:
+  graph:
+    edges:
+    - data:
+        isInIteration: false
+        sourceType: start
+        targetType: tool
+      id: start0001-source-tool0001-target
+      source: 'start0001'
+      sourceHandle: source
+      target: 'tool0001'
+      targetHandle: target
+    - data:
+        isInIteration: false
+        sourceType: tool
+        targetType: end
+      id: tool0001-source-end0001-target
+      source: 'tool0001'
+      sourceHandle: source
+      target: 'end0001'
+      targetHandle: target

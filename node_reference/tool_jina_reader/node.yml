@@ -1,0 +1,90 @@
+
+
+    nodes:
+    - data:
+        desc: ''
+        selected: false
+        title: 開始
+        type: start
+        variables:
+        - label: user_input
+          max_length: 256
+          options: []
+          required: true
+          type: text-input
+          variable: user_input
+      id: 'start0001'
+      type: custom
+    - data:
+        desc: ''
+        provider_id: jina
+        provider_name: jina
+        provider_type: builtin
+        selected: false
+        title: Fetch Single Page
+        tool_configurations:
+          gather_all_images_at_the_end: 0
+          gather_all_links_at_the_end: 0
+          image_caption: 0
+          max_retries: 3
+          no_cache: 0
+          proxy_server: null
+          remove_selector: null
+          retain_images: 0
+          summary: 0
+          target_selector: null
+          wait_for_selector: null
+          with_iframe: 0
+          with_shadow_dom: 0
+        tool_label: Fetch Single Page
+        tool_name: jina_reader
+        tool_parameters:
+          url:
+            type: mixed
+            value: '{{#start0001.user_input#}}'
+        type: tool
+      id: 'tool_jina_reader0001'
+    - data:
+        desc: ''
+        outputs:
+        - value_selector:
+          - 'tool_jina_reader0001'
+          - text
+          variable: text
+        selected: false
+        title: 終了
+        type: end
+      id: 'end0001'
+      type: custom
+
+
+<jina_reader structure>
+        desc: ''  # 任意 
+        provider_id: jina # 固定 必須
+        provider_name: jina # 固定 必須
+        provider_type: builtin # 固定 必須
+        selected: false # 固定 必須
+        title: Fetch Single Page # 任意 必須
+        tool_configurations: # 必須
+          gather_all_images_at_the_end: 0 # 必須 0 or 1、image_captionを1にする場合は 1
+          gather_all_links_at_the_end: 0 # 必須 0 or 1、1にした場合、ページに含まれるリンクをテキストに含める
+          image_caption: 0 # 必須 0 or 1、1にした場合、ページに含まれる画像のタイトルをテキストに含める
+          max_retries: 3 # 固定 必須
+          no_cache: 0 # 固定 必須
+          proxy_server: null # 固定 必須
+          remove_selector: null # 固定 必須
+          retain_images: 0 # 固定 必須
+          summary: 0 # 固定 必須
+          target_selector: null # 固定 必須
+          wait_for_selector: null # 固定 必須
+          with_iframe: 0 # 固定 必須
+          with_shadow_dom: 0 # 固定 必須
+        tool_label: Fetch Single Page # 任意 必須
+        tool_name: jina_reader # 固定 jina_reader 以外を入れると バグにならいます
+        tool_parameters: # 必須 
+          url:
+            type: mixed # 固定 必須
+            value: '{{#start0001.user_input#}}' # URL 必須
+        type: tool # 固定 tool のみ 必須
+      id: 'tool_jina_reader0001' # ユニークなID　必須
+</jina_reader structure>

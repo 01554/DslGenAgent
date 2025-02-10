@@ -1,0 +1,113 @@
+app:
+  mode: workflow
+  name: URLから記事サマリーを生成するワークフロー
+  version: 0.1.5
+
+workflow:
+  graph:
+    edges:
+    - source: start001
+      target: tool_jina_reader001
+      id: start001-source-tool_jina_reader001-target
+      data:
+        sourceType: start
+        targetType: tool
+        isInIteration: false
+      sourceHandle: source
+      targetHandle: target
+      type: custom
+      zIndex: 0
+    - source: tool_jina_reader001
+      target: llm001
+      id: tool_jina_reader001-source-llm001-target
+      data:
+        sourceType: tool
+        targetType: llm
+        isInIteration: false
+      sourceHandle: source
+      targetHandle: target
+      type: custom
+      zIndex: 0
+    - source: llm001
+      target: end001
+      id: llm001-source-end001-target
+      data:
+        sourceType: llm
+        targetType: end
+        isInIteration: false
+      sourceHandle: source
+      targetHandle: target
+      type: custom
+      zIndex: 0
+
+    nodes:
+    - data:
+        type: start
+        title: URL入力
+        variables:
+          - type: text-input
+            variable: url
+            label: 読み込むURL
+            required: true
+            max_length: 2048
+      id: start001
+    - data:
+        type: tool
+        desc: 'Jina Readerで記事を読み込む'
+        provider_id: jina
+        provider_name: jina
+        provider_type: builtin
+        selected: false
+        title: 'Jina Reader'
+        tool_configurations:
+          gather_all_images_at_the_end: 0
+          gather_all_links_at_the_end: 0
+          image_caption: 0
+          max_retries: 3
+          no_cache: 0
+          proxy_server: null
+          remove_selector: null
+          retain_images: 0
+          summary: 0
+          target_selector: null
+          wait_for_selector: null
+          with_iframe: 0
+          with_shadow_dom: 0
+        tool_label: 'Fetch Single Page'
+        tool_name: jina_reader
+        tool_parameters:
+          url:
+            type: mixed
+            value: '{{#start001.url#}}'
+      id: tool_jina_reader001
+    - data:
+        type: llm
+        title: サマリー生成
+        model:
+          provider: openai
+          name: gpt-4o-mini
+          mode: chat
+          completion_params:
+            temperature: 0.7
+        prompt_template:
+          - role: system
+            text: '以下の記事内容を要約してください。要約は簡潔で分かりやすく、記事の主要なポイントを含めてください。要約の長さは200字程度に収めてください。\n\n記事内容:\n{{#tool_jina_reader001.text#}}'
+        context:
+          enabled: true
+          variable_selector:
+            - tool_jina_reader001
+            - text
+        vision:
+          enabled: false
+      id: llm001
+    - data:
+        type: end
+        title: サマリー出力
+        desc: '生成されたサマリーを最終出力として返す'
+        outputs:
+          - value_selector:
+              - llm001
+              - text
+            variable: summary
+        selected: true
+      id: end001

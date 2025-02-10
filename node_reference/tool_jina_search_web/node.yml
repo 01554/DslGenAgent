@@ -1,0 +1,70 @@
+    nodes:
+    - data:
+        desc: ''
+        selected: false
+        title: 開始
+        type: start
+        variables:
+        - label: user_input
+          max_length: 256
+          options: []
+          required: true
+          type: text-input
+          variable: user_input
+      id: 'start0001'
+    - data:
+        desc: ''
+        provider_id: jina
+        provider_name: jina
+        provider_type: builtin
+        selected: false
+        title: Search the web
+        tool_configurations:
+          gather_all_images_at_the_end: 0
+          gather_all_links_at_the_end: 0
+          image_caption: 0
+          max_retries: 3
+          no_cache: 0
+          proxy_server: null
+        tool_label: Search the web
+        tool_name: jina_search
+        tool_parameters:
+          query:
+            type: mixed
+            value: '{{#start0001.user_input#}}'
+        type: tool
+      id: 'tool0001'
+    - data:
+        desc: ''
+        outputs:
+        - value_selector:
+          - 'tool0001'
+          - text
+          variable: text
+        selected: true
+        title: 終了
+        type: end
+      id: 'end0001'
+
+
+<jina_search structure>
+        provider_id: jina # 固定 必須
+        provider_name: jina
+        provider_type: builtin
+        title: Search the web # 必須 内容任意
+        tool_configurations: # 必須
+          gather_all_images_at_the_end: 0 # 必須 0 or 1、image_captionを使う場合は1にする
+          gather_all_links_at_the_end: 0 # 必須 0 or 1、1にした場合、ページに含まれるリンクをテキストに含める
+          image_caption: 0 # 固定 0 or 1、1にした場合、ページに含まれる画像のタイトルをテキストに含める
+          max_retries: 3 # 固定 必須
+          no_cache: 0 # 固定 必須
+          proxy_server: null # 固定 必須
+        tool_label: Search the web # 任意 必須
+        tool_name: jina_search # 固定 必須 かならずjina_searchを入れる、それ以外を入れるとバグになります
+        tool_parameters: # 必須
+          query: # 必須
+            type: mixed # 固定 必須
+            value: '{{#start0001.user_input#}}' # クエリー  必須
+        type: tool # tool で固定 必須
+      id: 'tool0001' # ノードのID 必須
+</jina_search structure>
