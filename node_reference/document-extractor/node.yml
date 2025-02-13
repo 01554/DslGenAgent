@@ -1,6 +1,23 @@
-workflow:
-  graph:
+  <document-extractor_node>
     nodes:
+    - data:
+        desc: ''
+        selected: true
+        title: 開始
+        type: start
+        variables:
+        - allowed_file_extensions: []
+          allowed_file_types:
+          - document
+          allowed_file_upload_methods:
+          - remote_url
+          label: file
+          max_length: 48
+          options: []
+          required: true
+          type: file
+          variable: file
+      id: 'start00001'
     - data:
         desc: ''
         is_array_file: false
@@ -8,6 +25,35 @@ workflow:
         title: テキスト抽出ツール
         type: document-extractor
         variable_selector:
-        - '1736386006466'
-        - image_or_text
-      id: '1736386362442'
+        - 'start00001'
+        - file
+      id: 'documentextractor00001'
+
+    - data:
+        desc: ''
+        outputs:
+        - value_selector:
+          - 'documentextractor00001'
+          - text
+          variable: text
+        selected: false
+        title: 終了
+        type: end
+      id: 'end001'
+        <structure>
+
+        is_array_file: false # リスト形式で渡される場合はtrue 必須
+        title: テキスト抽出ツール # タイトル 必須
+        type: document-extractor # 固定 必須
+        variable_selector: # 必須
+        - 'start00001' # 入力ノードのID
+        - file # 入力ノードで渡される変数名
+      id: 'documentextractor00001' # 必須 任意名
+
+
+        </structure>
+        <note>
+        - 渡された変数がファイル、もしくはURLのときのみ動作可能 
+        - ファイルの内容を抽出するための方法は指定できない
+        </note>
+      </document-extractor_node>

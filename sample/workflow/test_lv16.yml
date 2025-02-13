@@ -1,0 +1,94 @@
+app:
+  mode: workflow
+  name: PDFテキスト解析とキーフレーズカウント
+  version: 0.1.5
+
+workflow:
+  graph:
+    edges:
+      - source: start001
+        target: docextractor001
+        id: start001-source-docextractor001-target
+        data:
+          sourceType: start
+          targetType: document-extractor
+          isInIteration: false
+        sourceHandle: source
+        targetHandle: target
+        type: custom
+        zIndex: 0
+      - source: docextractor001
+        target: code001
+        id: docextractor001-source-code001-target
+        data:
+          sourceType: document-extractor
+          targetType: code
+          isInIteration: false
+        sourceHandle: source
+        targetHandle: target
+        type: custom
+        zIndex: 0
+      - source: code001
+        target: end001
+        id: code001-source-end001-target
+        data:
+          sourceType: code
+          targetType: end
+          isInIteration: false
+        sourceHandle: source
+        targetHandle: target
+        type: custom
+        zIndex: 0
+
+    nodes:
+      - data:
+          type: start
+          title: PDF入力
+          variables:
+            - type: file
+              variable: pdf_file
+              label: PDFファイル
+              required: true
+              allowed_file_types:
+                - document
+              allowed_file_upload_methods:
+                - local_file
+                - remote_url
+              max_length: 255
+        id: start001
+
+      - data:
+          type: document-extractor
+          title: PDFテキスト抽出
+          is_array_file: false
+          variable_selector:
+            - start001
+            - pdf_file
+        id: docextractor001
+
+      - data:
+          type: code
+          title: キーフレーズカウント
+          code: "\ndef main(text: str) -> dict:\n    key_phrases = [\"重要\", \"緊急\", \"注意\", \"確認\", \"必須\"]\n    counts = {phrase: text.count(phrase) for phrase in key_phrases}\n    return {\n        \"result\": str(counts)\n    }\n"
+          code_language: python3
+          desc: 'キーフレーズの出現回数をカウントし、結果を返す'
+          outputs:
+            result:
+              type: string
+          variables:
+            - value_selector:
+                - docextractor001
+                - text
+              variable: text
+        id: code001
+
+      - data:
+          type: end
+          title: 結果出力
+          desc: 'キーフレーズのカウント結果を最終出力として返す'
+          outputs:
+            - value_selector:
+                - code001
+                - result
+              variable: result
+        id: end001

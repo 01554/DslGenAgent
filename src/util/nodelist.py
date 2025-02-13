@@ -25,13 +25,17 @@ class NodeList():
         node_reference_path = os.path.normpath(os.path.join(current_dir, "..", "..", "node_reference"))
 
         use_case = f"{node_reference_path}/{node_type}/use_case.yml"
+        edge_path = f"{node_reference_path}/{node_type}/edges.yml"
         
         try:
             with open(use_case, 'r', encoding='utf-8') as f:
                 description = f.read()
+            with open(edge_path, 'r', encoding='utf-8') as f:
+                edge = f.read()
                         
-            return f"# node_type: {node_type}\n## {node_type} description\n\n{description}"
+            return f"# node_type: {node_type}\n## {node_type} description\n\n{description} \n\n## {node_type} edge sample\n\n{edge}"
             
         except FileNotFoundError:
+            print(f"見つかりません: {use_case}")
             # 利用不可とする
             return f"# node_type: {node_type}\n## {node_type} description\n\n**利用不可**"

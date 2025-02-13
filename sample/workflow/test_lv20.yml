@@ -1,0 +1,384 @@
+app:
+  mode: workflow
+  name: 高品質レポート生成ワークフロー
+  version: 0.1.5
+
+workflow:
+  graph:
+    edges:
+    - source: start001
+      target: llm001
+      id: start001-source-llm001-target
+      data:
+        sourceType: start
+        targetType: llm
+        isInIteration: false
+      sourceHandle: source
+      targetHandle: target
+      type: custom
+      zIndex: 0
+    - source: llm001
+      target: llm002
+      id: llm001-source-llm002-target
+      data:
+        sourceType: llm
+        targetType: llm
+        isInIteration: false
+      sourceHandle: source
+      targetHandle: target
+      type: custom
+      zIndex: 0
+    - source: llm002
+      target: tool001
+      id: llm002-source-tool001-target
+      data:
+        sourceType: llm
+        targetType: tool
+        isInIteration: false
+      sourceHandle: source
+      targetHandle: target
+      type: custom
+      zIndex: 0
+    - source: tool001
+      target: llm003
+      id: tool001-source-llm003-target
+      data:
+        sourceType: tool
+        targetType: llm
+        isInIteration: false
+      sourceHandle: source
+      targetHandle: target
+      type: custom
+      zIndex: 0
+    - source: llm003
+      target: code001
+      id: llm003-source-code001-target
+      data:
+        sourceType: llm
+        targetType: code
+        isInIteration: false
+      sourceHandle: source
+      targetHandle: target
+      type: custom
+      zIndex: 0
+    - source: code001
+      target: llm004
+      id: code001-source-llm004-target
+      data:
+        sourceType: code
+        targetType: llm
+        isInIteration: false
+      sourceHandle: source
+      targetHandle: target
+      type: custom
+      zIndex: 0
+    - source: llm004
+      target: llm005
+      id: llm004-source-llm005-target
+      data:
+        sourceType: llm
+        targetType: llm
+        isInIteration: false
+      sourceHandle: source
+      targetHandle: target
+      type: custom
+      zIndex: 0
+    - source: llm005
+      target: llm006
+      id: llm005-source-llm006-target
+      data:
+        sourceType: llm
+        targetType: llm
+        isInIteration: false
+      sourceHandle: source
+      targetHandle: target
+      type: custom
+      zIndex: 0
+    - source: llm006
+      target: llm007
+      id: llm006-source-llm007-target
+      data:
+        sourceType: llm
+        targetType: llm
+        isInIteration: false
+      sourceHandle: source
+      targetHandle: target
+      type: custom
+      zIndex: 0
+    - source: llm007
+      target: llm008
+      id: llm007-source-llm008-target
+      data:
+        sourceType: llm
+        targetType: llm
+        isInIteration: false
+      sourceHandle: source
+      targetHandle: target
+      type: custom
+      zIndex: 0
+    - source: llm008
+      target: llm009
+      id: llm008-source-llm009-target
+      data:
+        sourceType: llm
+        targetType: llm
+        isInIteration: false
+      sourceHandle: source
+      targetHandle: target
+      type: custom
+      zIndex: 0
+    - source: llm009
+      target: end001
+      id: llm009-source-end001-target
+      data:
+        sourceType: llm
+        targetType: end
+        isInIteration: false
+      sourceHandle: source
+      targetHandle: target
+      type: custom
+      zIndex: 0
+
+    nodes:
+    - data:
+        type: start
+        title: ユーザー入力
+        variables:
+          - type: paragraph
+            variable: user_input
+            label: ユーザー入力
+            required: true
+            max_length: 99999
+      id: start001
+    - data:
+        type: llm
+        title: 初期分析結果からレポート構造設計
+        model:
+          provider: openai
+          name: gpt-4o-mini
+          mode: chat
+          completion_params:
+            temperature: 0.7
+        prompt_template:
+          - role: system
+            text: '以下の初期分析結果を基に、詳細なレポート構造を設計してください。\n\n1. 分析結果を注意深く読み、主要なトピックや重要なポイントを特定してください。\n2. これらのトピックを論理的な順序で配置し、レポートの章立てを作成してください。\n3. 各章には適切な見出しをつけ、その章で扱う内容の概要を簡潔に記述してください。\n4. 必要に応じて、サブセクションを設けて詳細な構造を提案してください。\n5. レポート全体の流れが一貫性を持ち、読み手にとって理解しやすい構造になるよう心がけてください。\n6. 最後に、エグゼクティブサマリーと結論のセクションを含めることを忘れないでください。\n\n初期分析結果: {{#start001.user_input#}}\n\n上記の指示に従って、詳細なレポート構造を設計し、各セクションの概要と共に提示してください。'
+        context:
+          enabled: true
+          variable_selector:
+            - start001
+            - user_input
+        vision:
+          enabled: false
+      id: llm001
+    - data:
+        type: llm
+        title: レポート構造から検索クエリ生成
+        model:
+          provider: openai
+          name: gpt-4o-mini
+          mode: chat
+          completion_params:
+            temperature: 0.7
+        prompt_template:
+          - role: system
+            text: '以下のレポート構造を分析し、各セクションに必要な追加情報を収集するための検索クエリを生成してください。\n\n1. レポート構造の各セクションを注意深く読み、主要なトピックや重要なポイントを特定してください。\n2. 各セクションについて、より詳細な情報や最新のデータが必要と思われる部分を識別してください。\n3. 識別した部分について、具体的で効果的な検索クエリを作成してください。\n4. クエリは、関連性の高い情報を得られるよう、適切なキーワードや専門用語を含めてください。\n5. 各クエリの目的や、どのセクションに関連するかを明確に示してください。\n6. 全体として、レポートの質と深さを向上させるような情報を得られるクエリセットを作成することを目指してください。\n\nレポート構造：\n{{#llm001.text#}}\n\n上記の指示に従って、レポート構造に基づいた検索クエリのリストを作成し、各クエリの目的と関連セクションを明記してください。'
+        context:
+          enabled: true
+          variable_selector:
+            - llm001
+            - text
+        vision:
+          enabled: false
+      id: llm002
+    - data:
+        type: tool
+        title: Tavily Search
+        tool_name: tavily_search
+        provider_id: tavily
+        provider_name: tavily
+        provider_type: builtin
+        tool_configurations:
+          days: 365
+          exclude_domains: null
+          include_answer: 0
+          include_domains: null
+          include_image_descriptions: 0
+          include_images: 0
+          include_raw_content: 0
+          max_results: 20
+          search_depth: basic
+          topic: general
+        tool_parameters:
+          query:
+            type: mixed
+            value: '{{#llm002.text#}}'
+        output_variable:
+          - search_results
+        description: 検索結果を受け取り、内容を拡充するLLMに渡す
+      id: tool001
+    - data:
+        type: llm
+        title: 検索結果の拡充と整理
+        model:
+          provider: openai
+          name: gpt-4o-mini
+          mode: chat
+          completion_params:
+            temperature: 0.7
+        prompt_template:
+          - role: system
+            text: '以下の検索結果を分析し、レポートの各セクションに関連する情報を拡充し整理してください。\n\n1. 検索結果を注意深く読み、レポートの各セクションに関連する重要な情報を抽出してください。\n2. 抽出した情報を、レポートの構造に沿って整理し、各セクションの内容を拡充してください。\n3. 情報の信頼性と関連性を評価し、最も価値のある情報を優先してください。\n4. 必要に応じて、情報を要約したり、複数の情報源からの知見を統合したりしてください。\n5. 各セクションの情報が一貫性を持ち、論理的に繋がるように整理してください。\n6. 拡充された情報には、適切な引用や参照を含めてください。\n7. 最終的に、データ可視化に適した形式で情報を構造化してください。\n\n検索結果：\n{{#tool001.search_results#}}\n\n上記の指示に従って、検索結果を分析し、レポートの各セクションに関連する情報を拡充・整理してください。データ可視化に適した形式で出力してください。'
+        context:
+          enabled: true
+          variable_selector:
+            - tool001
+            - search_results
+        vision:
+          enabled: false
+      id: llm003
+    - data:
+        type: code
+        title: データ可視化用コード生成
+        code_language: python3
+        code: "\nimport json\n\ndef main(llm_output: str) -> dict:\n    # LLMの出力を解析\n    data = json.loads(llm_output)\n    \n    # データ可視化用のコードを生成\n    visualization_code = \"import matplotlib.pyplot as plt\\n\\n\"\n    \n    for section, content in data.items():\n        if isinstance(content, dict) and 'data' in content:\n            visualization_code += f\"# Visualization for {section}\\n\"\n            visualization_code += f\"plt.figure(figsize=(10, 6))\\n\"\n            visualization_code += f\"plt.bar(list({content['data']}.keys()), list({content['data']}.values()))\\n\"\n            visualization_code += f\"plt.title('{section}')\\n\"\n            visualization_code += f\"plt.xlabel('Categories')\\n\"\n            visualization_code += f\"plt.ylabel('Values')\\n\"\n            visualization_code += f\"plt.xticks(rotation=45)\\n\"\n            visualization_code += f\"plt.tight_layout()\\n\"\n            visualization_code += f\"plt.show()\\n\\n\"\n    \n    return {\n        \"result\": visualization_code\n    }"
+        outputs:
+          result:
+            type: string
+        variables:
+          - value_selector:
+              - llm003
+              - text
+            variable: llm_output
+        desc: データ可視化結果を受け取り、文章を洗練するLLMに渡す
+      id: code001
+    - data:
+        type: llm
+        title: 文章の洗練
+        model:
+          provider: openai
+          name: gpt-4o-mini
+          mode: chat
+          completion_params:
+            temperature: 0.7
+        prompt_template:
+          - role: system
+            text: '以下のデータ可視化用コードと元の文章を基に、より洗練された文章を作成してください。\n\n1. データ可視化コードを分析し、そこから得られる洞察を文章に反映させてください。\n2. 元の文章の構造と内容を尊重しつつ、より明確で説得力のある表現に改善してください。\n3. 専門用語や技術的な概念がある場合は、適切に説明を加えてください。\n4. 文章全体の流れを整え、論理的な構成になるよう調整してください。\n5. 読み手にとって理解しやすく、興味を引く文章になるよう心がけてください。\n6. 必要に応じて、データ可視化から得られる具体的な数値や傾向を文章に組み込んでください。\n7. 文章の長さは元の文章と同程度を維持しつつ、内容の質を向上させてください。\n\nデータ可視化用コード：\n{{#code001.result#}}\n\n元の文章：\n{{#llm003.text#}}\n\n上記の指示に従って、データ可視化コードと元の文章を基に、より洗練された文章を作成してください。'
+        context:
+          enabled: true
+          variable_selector:
+            - code001
+            - result
+            - llm003
+            - text
+        vision:
+          enabled: false
+      id: llm004
+    - data:
+        type: llm
+        title: 引用と参考文献の追加
+        model:
+          provider: openai
+          name: gpt-4o-mini
+          mode: chat
+          completion_params:
+            temperature: 0.7
+        prompt_template:
+          - role: system
+            text: '以下の洗練された文章に対して、適切な引用と参考文献を追加してください。\n\n1. 文章全体を注意深く読み、引用や参考文献が必要な箇所を特定してください。\n2. 特定した箇所に、適切な引用を挿入してください。引用は、文章の流れを妨げないよう、自然に組み込んでください。\n3. 引用元の情報（著者名、出版年、タイトル、出版社など）を正確に記録してください。\n4. 文章の最後に、参考文献リストを作成してください。リストは適切な引用スタイル（例：APA、MLA、Chicago）に従って作成してください。\n5. 引用と参考文献の追加により、文章の信頼性と学術的価値を高めてください。\n6. 必要に応じて、脚注や巻末注を使用して追加の説明や出典情報を提供してください。\n7. 引用や参考文献の追加により、元の文章の意図や流れが損なわれないよう注意してください。\n\n洗練された文章：\n{{#llm004.text#}}\n\n上記の指示に従って、適切な引用と参考文献を追加した文章を作成してください。'
+        context:
+          enabled: true
+          variable_selector:
+            - llm004
+            - text
+        vision:
+          enabled: false
+      id: llm005
+    - data:
+        type: llm
+        title: 要約と結論の追加
+        model:
+          provider: openai
+          name: gpt-4o-mini
+          mode: chat
+          completion_params:
+            temperature: 0.7
+        prompt_template:
+          - role: system
+            text: '以下の文章に対して、適切な要約と結論を追加してください。\n\n1. 文章全体を注意深く読み、主要なポイントと重要な情報を特定してください。\n2. 特定した情報を基に、簡潔で的確な要約を作成してください。要約は文章の冒頭に配置し、読者が内容の概要を素早く把握できるようにしてください。\n3. 文章の最後に、全体の内容を踏まえた明確な結論を追加してください。結論は文章全体の主張や発見を簡潔にまとめ、今後の展望や提言を含めてください。\n4. 要約と結論は、文章の本文と調和するよう、同じトーンと文体を維持してください。\n5. 要約は文章全体の約10%程度の長さを目安とし、結論は5-10%程度の長さを目安としてください。\n6. 要約と結論の追加により、文章全体の構造と流れが改善されるよう注意してください。\n7. 必要に応じて、本文の一部を調整して要約や結論との整合性を保ってください。\n\n文章：\n{{#llm005.text#}}\n\n上記の指示に従って、適切な要約と結論を追加した文章を作成してください。'
+        context:
+          enabled: true
+          variable_selector:
+            - llm005
+            - text
+        vision:
+          enabled: false
+      id: llm006
+    - data:
+        type: llm
+        title: フォーマット調整
+        model:
+          provider: openai
+          name: gpt-4o-mini
+          mode: chat
+          completion_params:
+            temperature: 0.7
+        prompt_template:
+          - role: system
+            text: '以下の文章を受け取り、フォーマットを調整してください。\n\n1. 文章全体の構造を確認し、必要に応じて段落や章立てを整理してください。\n2. 見出しのレベルや番号付けを統一し、階層構造を明確にしてください。\n3. フォントスタイル（太字、斜体、下線など）の使用を一貫させ、重要なポイントを強調してください。\n4. 箇条書きやリストの形式を統一し、情報を整理してください。\n5. 図表や画像の配置を最適化し、本文との関連性を明確にしてください。\n6. 余白、行間、インデントなどのレイアウト要素を調整し、読みやすさを向上させてください。\n7. 引用や参考文献の表記方法を統一し、学術的な体裁を整えてください。\n8. 全体的な一貫性を保ちつつ、各セクションの特性に応じた適切なフォーマットを適用してください。\n\n文章：\n{{#llm006.text#}}\n\n上記の指示に従って、フォーマットを調整した文章を作成してください。調整後の文章は、次の校正と編集プロセスに適した形式になるようにしてください。'
+        context:
+          enabled: true
+          variable_selector:
+            - llm006
+            - text
+        vision:
+          enabled: false
+      id: llm007
+    - data:
+        type: llm
+        title: 校正と編集
+        model:
+          provider: openai
+          name: gpt-4o-mini
+          mode: chat
+          completion_params:
+            temperature: 0.7
+        prompt_template:
+          - role: system
+            text: '以下のフォーマット調整済みの文章に対して、校正と編集を行ってください。\n\n1. 文法、句読点、スペルの誤りを修正してください。\n2. 文章の流れを改善し、より読みやすくしてください。\n3. 冗長な表現を簡潔にし、明確さを向上させてください。\n4. 専門用語の使用が適切かどうかを確認し、必要に応じて説明を追加してください。\n5. 文章全体の一貫性を確保し、論理的な構成を維持してください。\n6. 引用や参考文献の形式が正しいか確認し、必要に応じて修正してください。\n7. 段落の構成や長さを最適化し、読みやすさを向上させてください。\n8. 文体や表現の統一性を確保してください。\n9. 最終的な文章が、学術的かつ専門的な品質を維持していることを確認してください。\n\nフォーマット調整済みの文章：\n{{#llm007.text#}}\n\n上記の指示に従って、校正と編集を行った文章を作成してください。最終的な文章は、次の最終レビューに適した高品質なものになるようにしてください。'
+        context:
+          enabled: true
+          variable_selector:
+            - llm007
+            - text
+        vision:
+          enabled: false
+      id: llm008
+    - data:
+        type: llm
+        title: 最終レビューと出力
+        model:
+          provider: openai
+          name: gpt-4o-mini
+          mode: chat
+          completion_params:
+            temperature: 0.5
+        prompt_template:
+          - role: system
+            text: '以下の校正と編集が完了した文章に対して、最終レビューを行い、完成したレポートを出力してください。\n\n1. 文章全体を注意深く読み、内容の正確性、一貫性、論理的構成を確認してください。\n2. 学術的・専門的な品質が維持されているか確認し、必要に応じて微調整を行ってください。\n3. 引用や参考文献が適切に使用され、正確に記載されているか確認してください。\n4. 要約、本文、結論の整合性を確認し、全体として一貫したメッセージが伝わるようにしてください。\n5. 文章のトーンや文体が目的に適しているか確認し、必要に応じて調整してください。\n6. 専門用語の使用が適切で、十分な説明がなされているか確認してください。\n7. 図表や視覚的要素が効果的に使用され、本文と適切にリンクしているか確認してください。\n8. 最終的なレポートが、読者にとって明確で説得力があり、価値のある情報を提供しているか評価してください。\n9. レポート全体を通して、オリジナルの分析結果や洞察が効果的に伝わっているか確認してください。\n\n校正と編集が完了した文章：\n{{#llm008.text#}}\n\n上記の指示に従って最終レビューを行い、完成したレポートを出力してください。このレポートは、高品質で専門的な内容を持ち、読者に価値ある情報を提供する最終成果物となるようにしてください。'
+        context:
+          enabled: true
+          variable_selector:
+            - llm008
+            - text
+        vision:
+          enabled: false
+      id: llm009
+    - data:
+        outputs:
+          - value_selector:
+              - llm009
+              - text
+            variable: final_report
+        type: end
+        title: 最終レポート出力
+      id: end001

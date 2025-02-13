@@ -1,22 +1,12 @@
   graph:
     edges:
-    - data:
-        isInIteration: false
-        sourceType: start
-        targetType: code
-      id: start_001-source-code001-target
-      source: start_001
-      sourceHandle: source
-      target: 'code001'
-      targetHandle: target
-
     # イテレーションを使う場合、はじめにイテレーションへの入力と、イテレーションからの出力をつなぐ
     - data:
         isInIteration: false
-        sourceType: code
+        sourceType: start
         targetType: iteration
-      id: code001-source-iteration001-target
-      source: 'code001'
+      id: start001-source-iteration001-target
+      source: 'start001'
       sourceHandle: source
       target: 'iteration001'
       targetHandle: target

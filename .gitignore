@@ -177,3 +177,8 @@ cython_debug/
 
 # PyPI configuration file
 .pypirc
+
+
+
+# ローカルファイル
+user_request

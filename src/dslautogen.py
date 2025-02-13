@@ -109,7 +109,7 @@ def main(user_request:str="テキストを受け取り（上限10000文字）、
 
     # ワークフローとエッジのつながりを生成
     workflowplan_generator = WorkflowPlanGenerator(llm)
-    workflowplan = workflowplan_generator.generate_workflowplan(user_request, node_list, edge_samples)
+    workflowplan = workflowplan_generator.generate_edges(user_request, node_list)
     
     # エッジからノードを生成
 

@@ -5,4 +5,4 @@ def get_node_types_from_directory(node_reference_path:str = "node_reference"):
       # ディレクトリパスを適切に設定してください
     subdirs = [d for d in os.listdir(node_reference_path) 
               if os.path.isdir(os.path.join(node_reference_path, d))]
-    return {subdir.replace("-", "_"): subdir for subdir in subdirs}
+    return {subdir: subdir for subdir in subdirs}

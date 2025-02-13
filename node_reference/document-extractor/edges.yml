@@ -1,22 +1,26 @@
+
+workflow:
+  graph:
+    edges:
     - data:
         isInIteration: false
-        sourceType: if-else
+        sourceType: start
         targetType: document-extractor
-      id: 1736386176480-5f03d7db-f509-4218-86bc-4289a800a5f6-1736386362442-target
-      source: '1736386176480'
-      sourceHandle: 5f03d7db-f509-4218-86bc-4289a800a5f6
-      target: '1736386362442'
+      id: start00001-source-documentextractor00001-target
+      source: 'start00001'
+      sourceHandle: source
+      target: 'documentextractor00001'
       targetHandle: target
       type: custom
       zIndex: 0
     - data:
         isInIteration: false
         sourceType: document-extractor
-        targetType: llm
-      id: 1736386362442-source-1736386369722-target
-      source: '1736386362442'
+        targetType: end
+      id: documentextractor00001-source-end001-target
+      source: 'documentextractor00001'
       sourceHandle: source
-      target: '1736386369722'
+      target: 'end001'
       targetHandle: target
       type: custom
       zIndex: 0
